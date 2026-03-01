@@ -75,9 +75,9 @@
                 android:textStyle="italic"
                 android:layout_marginBottom="14dp"/>
 
-            <!-- ══════════════════════════════════════════ -->
-            <!-- ── TTS ENGINE SWITCH CARD ── -->
-            <!-- ══════════════════════════════════════════ -->
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <!-- ── TTS ENGINE CARD ── -->
+            <!-- ══════════════════════════════════════════════════════════ -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -89,32 +89,81 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
+                    android:orientation="vertical"
                     android:padding="14dp">
 
-                    <LinearLayout
-                        android:layout_width="0dp"
+                    <!-- Header row -->
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:text="🔊 TTS ENGINE"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:textColor="#6C757D"
+                        android:letterSpacing="0.15"
+                        android:layout_marginBottom="10dp"/>
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="🔊 TTS ENGINE"
+                    <!-- 3-button engine selector -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="10dp">
+
+                        <Button
+                            android:id="@+id/btnEngineAndroid"
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="4dp"
+                            android:text="📱 Android"
                             android:textSize="10sp"
                             android:textStyle="bold"
-                            android:textColor="#6C757D"
-                            android:letterSpacing="0.15"
-                            android:layout_marginBottom="4dp"/>
+                            android:backgroundTint="#1A73E8"
+                            android:textColor="#FFFFFF"
+                            android:stateListAnimator="@null"
+                            style="@style/Widget.MaterialComponents.Button"/>
+
+                        <Button
+                            android:id="@+id/btnEngineChirp"
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="4dp"
+                            android:text="✨ Chirp3-HD"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:backgroundTint="#E0E0E0"
+                            android:textColor="#757575"
+                            android:stateListAnimator="@null"
+                            style="@style/Widget.MaterialComponents.Button"/>
+
+                        <Button
+                            android:id="@+id/btnEngineVertex"
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:text="🧠 Vertex AI"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:backgroundTint="#E0E0E0"
+                            android:textColor="#757575"
+                            android:stateListAnimator="@null"
+                            style="@style/Widget.MaterialComponents.Button"/>
+                    </LinearLayout>
+
+                    <!-- Engine info row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
 
                         <TextView
                             android:id="@+id/tvEngineLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="📱 Android Built-in"
-                            android:textSize="14sp"
+                            android:textSize="13sp"
                             android:textStyle="bold"
                             android:textColor="#1A1A2E"/>
 
@@ -126,18 +175,12 @@
                             android:textSize="11sp"
                             android:textColor="#9E9E9E"/>
                     </LinearLayout>
-
-                    <com.google.android.material.switchmaterial.SwitchMaterial
-                        android:id="@+id/switchTtsEngine"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checked="false"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- ══════════════════════════════════════════ -->
+            <!-- ══════════════════════════════════════════════════════════ -->
             <!-- ── ANDROID BUILT-IN VOICE CARD ── -->
-            <!-- ══════════════════════════════════════════ -->
+            <!-- ══════════════════════════════════════════════════════════ -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardAndroidVoice"
                 android:layout_width="match_parent"
@@ -233,9 +276,9 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- ══════════════════════════════════════════ -->
+            <!-- ══════════════════════════════════════════════════════════ -->
             <!-- ── CHIRP3-HD VOICE CARD ── -->
-            <!-- ══════════════════════════════════════════ -->
+            <!-- ══════════════════════════════════════════════════════════ -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardGeminiVoice"
                 android:layout_width="match_parent"
@@ -252,7 +295,6 @@
                     android:orientation="vertical"
                     android:padding="14dp">
 
-                    <!-- Header -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -273,7 +315,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="No Vertex AI needed"
+                            android:text="API Key"
                             android:textSize="10sp"
                             android:textColor="#34A853"
                             android:background="#E6F4EA"
@@ -281,7 +323,6 @@
                             android:paddingVertical="2dp"/>
                     </LinearLayout>
 
-                    <!-- Female voices row -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -326,7 +367,6 @@
                             style="@style/Widget.MaterialComponents.Button"/>
                     </LinearLayout>
 
-                    <!-- Male voices row -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -376,6 +416,141 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Voice: Aoede (Female) · Chirp3-HD"
+                        android:textSize="11sp"
+                        android:textColor="#1A73E8"
+                        android:textStyle="italic"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <!-- ── VERTEX AI VOICE CARD ── -->
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardVertexVoice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:visibility="gone"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <!-- Header -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="10dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="🧠 GOOGLE VERTEX AI VOICE"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:textColor="#6C757D"
+                            android:letterSpacing="0.15"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Bearer Token"
+                            android:textSize="10sp"
+                            android:textColor="#EA4335"
+                            android:background="#FDECEA"
+                            android:paddingHorizontal="6dp"
+                            android:paddingVertical="2dp"/>
+                    </LinearLayout>
+
+                    <!-- Studio label -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="⭐ Studio (Highest Quality)"
+                        android:textSize="10sp"
+                        android:textColor="#9E9E9E"
+                        android:layout_marginBottom="4dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <Button android:id="@+id/btnVertexVoice1"
+                            android:layout_width="0dp" android:layout_height="36dp"
+                            android:layout_weight="1" android:layout_marginEnd="4dp"
+                            android:text="👩 Studio-O" android:textSize="9sp"
+                            android:backgroundTint="#1A73E8" android:textColor="#FFF"
+                            android:stateListAnimator="@null"
+                            style="@style/Widget.MaterialComponents.Button"/>
+                        <Button android:id="@+id/btnVertexVoice2"
+                            android:layout_width="0dp" android:layout_height="36dp"
+                            android:layout_weight="1"
+                            android:text="👨 Studio-Q" android:textSize="9sp"
+                            android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                            android:stateListAnimator="@null"
+                            style="@style/Widget.MaterialComponents.Button"/>
+                    </LinearLayout>
+
+                    <!-- Neural2 label -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🤖 Neural2 (Very Natural)"
+                        android:textSize="10sp"
+                        android:textColor="#9E9E9E"
+                        android:layout_marginBottom="4dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <Button android:id="@+id/btnVertexVoice3"
+                            android:layout_width="0dp" android:layout_height="36dp"
+                            android:layout_weight="1" android:layout_marginEnd="4dp"
+                            android:text="👩 Neural2-C" android:textSize="9sp"
+                            android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                            android:stateListAnimator="@null"
+                            style="@style/Widget.MaterialComponents.Button"/>
+                        <Button android:id="@+id/btnVertexVoice4"
+                            android:layout_width="0dp" android:layout_height="36dp"
+                            android:layout_weight="1" android:layout_marginEnd="4dp"
+                            android:text="👨 Neural2-D" android:textSize="9sp"
+                            android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                            android:stateListAnimator="@null"
+                            style="@style/Widget.MaterialComponents.Button"/>
+                        <Button android:id="@+id/btnVertexVoice5"
+                            android:layout_width="0dp" android:layout_height="36dp"
+                            android:layout_weight="1" android:layout_marginEnd="4dp"
+                            android:text="👩 Neural2-F" android:textSize="9sp"
+                            android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                            android:stateListAnimator="@null"
+                            style="@style/Widget.MaterialComponents.Button"/>
+                        <Button android:id="@+id/btnVertexVoice6"
+                            android:layout_width="0dp" android:layout_height="36dp"
+                            android:layout_weight="1"
+                            android:text="👨 Neural2-J" android:textSize="9sp"
+                            android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                            android:stateListAnimator="@null"
+                            style="@style/Widget.MaterialComponents.Button"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvVertexVoiceLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Voice: Studio-O (Female) · Vertex AI"
                         android:textSize="11sp"
                         android:textColor="#1A73E8"
                         android:textStyle="italic"/>
