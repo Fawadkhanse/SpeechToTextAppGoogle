@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F8F9FA"
     tools:context=".MainActivity">
 
     <LinearLayout
@@ -14,32 +16,91 @@
         android:gravity="center"
         android:padding="24dp">
 
+        <!-- App Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🎙 Speech to Text"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#1A1A2E"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Status -->
         <TextView
             android:id="@+id/tvStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Press button to speak"
-            android:textSize="18sp"
-            android:gravity="center"/>
+            android:text="Hold the button below to start recording"
+            android:textSize="14sp"
+            android:textColor="#6C757D"
+            android:gravity="center"
+            android:layout_marginBottom="32dp"/>
 
+        <!-- Record Button -->
         <Button
             android:id="@+id/btnRecord"
             android:layout_width="160dp"
             android:layout_height="160dp"
-            android:layout_marginTop="32dp"
-            android:text="🎙 HOLD TO\nRECORD"
-            android:textSize="14sp"/>
+            android:text="🎙&#10;HOLD TO&#10;RECORD"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:backgroundTint="#E63946"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="24dp"/>
 
-        <TextView
-            android:id="@+id/tvResult"
+        <!-- Transcript Card -->
+        <androidx.cardview.widget.CardView
+            xmlns:card_view="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:text="Transcript will appear here..."
-            android:textSize="16sp"
-            android:gravity="center"
-            android:padding="16dp"
-            android:background="#F0F0F0"/>
+            android:layout_marginBottom="16dp"
+            card_view:cardCornerRadius="12dp"
+            card_view:cardElevation="4dp"
+            card_view:cardBackgroundColor="#FFFFFF">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📝 TRANSCRIPT"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textColor="#6C757D"
+                    android:letterSpacing="0.15"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:id="@+id/tvResult"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="60dp"
+                    android:text="Transcript will appear here after recording..."
+                    android:textSize="16sp"
+                    android:textColor="#1A1A2E"
+                    android:gravity="center"
+                    android:lineSpacingMultiplier="1.4"/>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Play Transcript Button -->
+        <Button
+            android:id="@+id/btnSpeak"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="🔊 Play Transcript"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:backgroundTint="#2196F3"
+            android:textColor="#FFFFFF"
+            android:enabled="false"/>
 
     </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
