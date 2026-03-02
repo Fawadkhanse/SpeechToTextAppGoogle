@@ -8,25 +8,23 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
-import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.Query
 import java.util.concurrent.TimeUnit
 
+// Uses API key (same as Chirp3-HD) — no Bearer token, never expires
 interface VertexTtsApiService {
-    // Vertex AI TTS endpoint — uses Bearer token (not API key)
-    // Project: your-project-id, Location: us-central1
     @POST("v1/text:synthesize")
     suspend fun synthesize(
-        @Header("Authorization") authorization: String,   // "Bearer <token>"
+        @Query("key") apiKey: String,
         @Body request: VertexTtsSynthesizeRequest
     ): Response<VertexTtsSynthesizeResponse>
 }
 
 object VertexTtsRetrofitClient {
 
-    // ✅ Vertex AI TTS endpoint (same API surface as Cloud TTS but routed through Vertex)
-    // Replace YOUR_PROJECT_ID with actual project id
-    private const val BASE_URL = "https://us-central1-texttospeech.googleapis.com/"
+    // Same endpoint as Chirp3-HD — Studio & Neural2 voices work here too
+    private const val BASE_URL = "https://texttospeech.googleapis.com/"
 
     private val service: VertexTtsApiService by lazy {
         val logging = HttpLoggingInterceptor().apply {
@@ -48,8 +46,7 @@ object VertexTtsRetrofitClient {
     }
 
     suspend fun synthesize(
-        bearerToken: String,
+        apiKey: String,
         request: VertexTtsSynthesizeRequest
-    ): Response<VertexTtsSynthesizeResponse> =
-        service.synthesize("Bearer $bearerToken", request)
+    ): Response<VertexTtsSynthesizeResponse> = service.synthesize(apiKey, request)
 }

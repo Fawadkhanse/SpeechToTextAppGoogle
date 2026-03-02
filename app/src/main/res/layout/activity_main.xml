@@ -18,619 +18,340 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center_horizontal"
-            android:padding="20dp">
+            android:padding="16dp">
 
-            <!-- ── Title ── -->
+            <!-- Title -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🎙 Speech to Text"
-                android:textSize="24sp"
+                android:text="Speech to Text"
+                android:textSize="22sp"
                 android:textStyle="bold"
                 android:textColor="#1A1A2E"
-                android:layout_marginBottom="14dp"/>
+                android:layout_marginBottom="12dp"/>
 
-            <!-- ── Language Toggle ── -->
+            <!-- Language Toggle -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:background="@drawable/toggle_bg"
                 android:padding="4dp"
-                android:gravity="center"
-                android:layout_marginBottom="6dp">
-
-                <Button
-                    android:id="@+id/btnLangEn"
-                    android:layout_width="120dp"
-                    android:layout_height="40dp"
-                    android:text="🇺🇸 English"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:backgroundTint="#1A73E8"
-                    android:textColor="#FFFFFF"
-                    android:stateListAnimator="@null"
-                    style="@style/Widget.MaterialComponents.Button"/>
-
-                <Button
-                    android:id="@+id/btnLangUr"
-                    android:layout_width="120dp"
-                    android:layout_height="40dp"
-                    android:text="🇵🇰 اردو"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:backgroundTint="#E0E0E0"
-                    android:textColor="#757575"
-                    android:stateListAnimator="@null"
-                    style="@style/Widget.MaterialComponents.Button"/>
+                android:layout_marginBottom="4dp">
+                <Button android:id="@+id/btnLangEn"
+                    android:layout_width="110dp" android:layout_height="38dp"
+                    android:text="English" android:textSize="12sp" android:textStyle="bold"
+                    android:backgroundTint="#1A73E8" android:textColor="#FFF"
+                    android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                <Button android:id="@+id/btnLangUr"
+                    android:layout_width="110dp" android:layout_height="38dp"
+                    android:text="اردو" android:textSize="12sp" android:textStyle="bold"
+                    android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                    android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvLangLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Language: English (en-US)"
-                android:textSize="12sp"
-                android:textColor="#1A73E8"
-                android:textStyle="italic"
-                android:layout_marginBottom="14dp"/>
+            <TextView android:id="@+id/tvLangLabel"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Language: English (en-US)" android:textSize="11sp"
+                android:textColor="#1A73E8" android:textStyle="italic"
+                android:layout_marginBottom="12dp"/>
 
-            <!-- ══════════════════════════════════════════════════════════ -->
-            <!-- ── TTS ENGINE CARD ── -->
-            <!-- ══════════════════════════════════════════════════════════ -->
+            <!-- TTS ENGINE CARD with 3 buttons -->
             <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="#FFFFFF">
-
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp" app:cardCornerRadius="12dp"
+                app:cardElevation="4dp" app:cardBackgroundColor="#FFFFFF">
                 <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="14dp">
-
-                    <!-- Header row -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="🔊 TTS ENGINE"
-                        android:textSize="10sp"
-                        android:textStyle="bold"
-                        android:textColor="#6C757D"
-                        android:letterSpacing="0.15"
-                        android:layout_marginBottom="10dp"/>
-
-                    <!-- 3-button engine selector -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="10dp">
-
-                        <Button
-                            android:id="@+id/btnEngineAndroid"
-                            android:layout_width="0dp"
-                            android:layout_height="40dp"
-                            android:layout_weight="1"
-                            android:layout_marginEnd="4dp"
-                            android:text="📱 Android"
-                            android:textSize="10sp"
-                            android:textStyle="bold"
-                            android:backgroundTint="#1A73E8"
-                            android:textColor="#FFFFFF"
-                            android:stateListAnimator="@null"
-                            style="@style/Widget.MaterialComponents.Button"/>
-
-                        <Button
-                            android:id="@+id/btnEngineChirp"
-                            android:layout_width="0dp"
-                            android:layout_height="40dp"
-                            android:layout_weight="1"
-                            android:layout_marginEnd="4dp"
-                            android:text="✨ Chirp3-HD"
-                            android:textSize="10sp"
-                            android:textStyle="bold"
-                            android:backgroundTint="#E0E0E0"
-                            android:textColor="#757575"
-                            android:stateListAnimator="@null"
-                            style="@style/Widget.MaterialComponents.Button"/>
-
-                        <Button
-                            android:id="@+id/btnEngineVertex"
-                            android:layout_width="0dp"
-                            android:layout_height="40dp"
-                            android:layout_weight="1"
-                            android:text="🧠 Vertex AI"
-                            android:textSize="10sp"
-                            android:textStyle="bold"
-                            android:backgroundTint="#E0E0E0"
-                            android:textColor="#757575"
-                            android:stateListAnimator="@null"
-                            style="@style/Widget.MaterialComponents.Button"/>
-                    </LinearLayout>
-
-                    <!-- Engine info row -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/tvEngineLabel"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="📱 Android Built-in"
-                            android:textSize="13sp"
-                            android:textStyle="bold"
-                            android:textColor="#1A1A2E"/>
-
-                        <TextView
-                            android:id="@+id/tvEngineDesc"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Device voice, works offline"
-                            android:textSize="11sp"
-                            android:textColor="#9E9E9E"/>
-                    </LinearLayout>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- ══════════════════════════════════════════════════════════ -->
-            <!-- ── ANDROID BUILT-IN VOICE CARD ── -->
-            <!-- ══════════════════════════════════════════════════════════ -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardAndroidVoice"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:visibility="visible"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="#FFFFFF">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="14dp">
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="12dp">
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="📱 ANDROID VOICE"
-                        android:textSize="10sp"
-                        android:textStyle="bold"
-                        android:textColor="#6C757D"
-                        android:letterSpacing="0.15"
-                        android:layout_marginBottom="10dp"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="6dp">
-
-                        <Button android:id="@+id/btnVoice1"
-                            android:layout_width="0dp" android:layout_height="36dp"
-                            android:layout_weight="1" android:layout_marginEnd="5dp"
-                            android:text="👩 Female 1" android:textSize="10sp"
-                            android:backgroundTint="#1A73E8" android:textColor="#FFF"
-                            android:stateListAnimator="@null"
-                            style="@style/Widget.MaterialComponents.Button"/>
-                        <Button android:id="@+id/btnVoice2"
-                            android:layout_width="0dp" android:layout_height="36dp"
-                            android:layout_weight="1" android:layout_marginEnd="5dp"
-                            android:text="👨 Male 1" android:textSize="10sp"
-                            android:backgroundTint="#E0E0E0" android:textColor="#757575"
-                            android:stateListAnimator="@null"
-                            style="@style/Widget.MaterialComponents.Button"/>
-                        <Button android:id="@+id/btnVoice3"
-                            android:layout_width="0dp" android:layout_height="36dp"
-                            android:layout_weight="1"
-                            android:text="👩 Female 2" android:textSize="10sp"
-                            android:backgroundTint="#E0E0E0" android:textColor="#757575"
-                            android:stateListAnimator="@null"
-                            style="@style/Widget.MaterialComponents.Button"/>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <Button android:id="@+id/btnVoice4"
-                            android:layout_width="0dp" android:layout_height="36dp"
-                            android:layout_weight="1" android:layout_marginEnd="5dp"
-                            android:text="👨 Male 2" android:textSize="10sp"
-                            android:backgroundTint="#E0E0E0" android:textColor="#757575"
-                            android:stateListAnimator="@null"
-                            style="@style/Widget.MaterialComponents.Button"/>
-                        <Button android:id="@+id/btnVoice5"
-                            android:layout_width="0dp" android:layout_height="36dp"
-                            android:layout_weight="1" android:layout_marginEnd="5dp"
-                            android:text="🧒 Child" android:textSize="10sp"
-                            android:backgroundTint="#E0E0E0" android:textColor="#757575"
-                            android:stateListAnimator="@null"
-                            style="@style/Widget.MaterialComponents.Button"/>
-                        <Button android:id="@+id/btnVoice6"
-                            android:layout_width="0dp" android:layout_height="36dp"
-                            android:layout_weight="1"
-                            android:text="🤖 Robot" android:textSize="10sp"
-                            android:backgroundTint="#E0E0E0" android:textColor="#757575"
-                            android:stateListAnimator="@null"
-                            style="@style/Widget.MaterialComponents.Button"/>
-                    </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/tvAndroidVoiceLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Voice: 👩 Female 1 — normal pitch &amp; speed"
-                        android:textSize="11sp"
-                        android:textColor="#1A73E8"
-                        android:textStyle="italic"
-                        android:layout_marginTop="8dp"/>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- ══════════════════════════════════════════════════════════ -->
-            <!-- ── CHIRP3-HD VOICE CARD ── -->
-            <!-- ══════════════════════════════════════════════════════════ -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardGeminiVoice"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:visibility="gone"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="#FFFFFF">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="14dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="10dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="✨ GOOGLE CHIRP3-HD VOICE"
-                            android:textSize="10sp"
-                            android:textStyle="bold"
-                            android:textColor="#6C757D"
-                            android:letterSpacing="0.15"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="API Key"
-                            android:textSize="10sp"
-                            android:textColor="#34A853"
-                            android:background="#E6F4EA"
-                            android:paddingHorizontal="6dp"
-                            android:paddingVertical="2dp"/>
-                    </LinearLayout>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="👩 Female"
-                        android:textSize="10sp"
-                        android:textColor="#9E9E9E"
-                        android:layout_marginBottom="4dp"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
-                        <Button android:id="@+id/btnVAchernar"
-                            android:layout_width="0dp" android:layout_height="36dp"
-                            android:layout_weight="1" android:layout_marginEnd="4dp"
-                            android:text="Aoede" android:textSize="10sp"
-                            android:backgroundTint="#1A73E8" android:textColor="#FFF"
-                            android:stateListAnimator="@null"
-                            style="@style/Widget.MaterialComponents.Button"/>
-                        <Button android:id="@+id/btnVAoede"
-                            android:layout_width="0dp" android:layout_height="36dp"
-                            android:layout_weight="1" android:layout_marginEnd="4dp"
-                            android:text="Kore" android:textSize="10sp"
-                            android:backgroundTint="#E0E0E0" android:textColor="#757575"
-                            android:stateListAnimator="@null"
-                            style="@style/Widget.MaterialComponents.Button"/>
-                        <Button android:id="@+id/btnVKore"
-                            android:layout_width="0dp" android:layout_height="36dp"
-                            android:layout_weight="1" android:layout_marginEnd="4dp"
-                            android:text="Zephyr" android:textSize="10sp"
-                            android:backgroundTint="#E0E0E0" android:textColor="#757575"
-                            android:stateListAnimator="@null"
-                            style="@style/Widget.MaterialComponents.Button"/>
-                        <Button android:id="@+id/btnVZephyr"
-                            android:layout_width="0dp" android:layout_height="36dp"
-                            android:layout_weight="1"
-                            android:text="Leda" android:textSize="10sp"
-                            android:backgroundTint="#E0E0E0" android:textColor="#757575"
-                            android:stateListAnimator="@null"
-                            style="@style/Widget.MaterialComponents.Button"/>
-                    </LinearLayout>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="👨 Male"
-                        android:textSize="10sp"
-                        android:textColor="#9E9E9E"
-                        android:layout_marginBottom="4dp"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
-                        <Button android:id="@+id/btnVCharon"
-                            android:layout_width="0dp" android:layout_height="36dp"
-                            android:layout_weight="1" android:layout_marginEnd="4dp"
-                            android:text="Charon" android:textSize="10sp"
-                            android:backgroundTint="#E0E0E0" android:textColor="#757575"
-                            android:stateListAnimator="@null"
-                            style="@style/Widget.MaterialComponents.Button"/>
-                        <Button android:id="@+id/btnVPuck"
-                            android:layout_width="0dp" android:layout_height="36dp"
-                            android:layout_weight="1" android:layout_marginEnd="4dp"
-                            android:text="Fenrir" android:textSize="10sp"
-                            android:backgroundTint="#E0E0E0" android:textColor="#757575"
-                            android:stateListAnimator="@null"
-                            style="@style/Widget.MaterialComponents.Button"/>
-                        <Button android:id="@+id/btnVFenrir"
-                            android:layout_width="0dp" android:layout_height="36dp"
-                            android:layout_weight="1" android:layout_marginEnd="4dp"
-                            android:text="Orus" android:textSize="10sp"
-                            android:backgroundTint="#E0E0E0" android:textColor="#757575"
-                            android:stateListAnimator="@null"
-                            style="@style/Widget.MaterialComponents.Button"/>
-                        <Button android:id="@+id/btnVOrus"
-                            android:layout_width="0dp" android:layout_height="36dp"
-                            android:layout_weight="1"
-                            android:text="Puck" android:textSize="10sp"
-                            android:backgroundTint="#E0E0E0" android:textColor="#757575"
-                            android:stateListAnimator="@null"
-                            style="@style/Widget.MaterialComponents.Button"/>
-                    </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/tvGeminiVoiceLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Voice: Aoede (Female) · Chirp3-HD"
-                        android:textSize="11sp"
-                        android:textColor="#1A73E8"
-                        android:textStyle="italic"/>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- ══════════════════════════════════════════════════════════ -->
-            <!-- ── VERTEX AI VOICE CARD ── -->
-            <!-- ══════════════════════════════════════════════════════════ -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardVertexVoice"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:visibility="gone"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="#FFFFFF">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="14dp">
-
-                    <!-- Header -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="10dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="🧠 GOOGLE VERTEX AI VOICE"
-                            android:textSize="10sp"
-                            android:textStyle="bold"
-                            android:textColor="#6C757D"
-                            android:letterSpacing="0.15"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Bearer Token"
-                            android:textSize="10sp"
-                            android:textColor="#EA4335"
-                            android:background="#FDECEA"
-                            android:paddingHorizontal="6dp"
-                            android:paddingVertical="2dp"/>
-                    </LinearLayout>
-
-                    <!-- Studio label -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="⭐ Studio (Highest Quality)"
-                        android:textSize="10sp"
-                        android:textColor="#9E9E9E"
-                        android:layout_marginBottom="4dp"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
-                        <Button android:id="@+id/btnVertexVoice1"
-                            android:layout_width="0dp" android:layout_height="36dp"
-                            android:layout_weight="1" android:layout_marginEnd="4dp"
-                            android:text="👩 Studio-O" android:textSize="9sp"
-                            android:backgroundTint="#1A73E8" android:textColor="#FFF"
-                            android:stateListAnimator="@null"
-                            style="@style/Widget.MaterialComponents.Button"/>
-                        <Button android:id="@+id/btnVertexVoice2"
-                            android:layout_width="0dp" android:layout_height="36dp"
-                            android:layout_weight="1"
-                            android:text="👨 Studio-Q" android:textSize="9sp"
-                            android:backgroundTint="#E0E0E0" android:textColor="#757575"
-                            android:stateListAnimator="@null"
-                            style="@style/Widget.MaterialComponents.Button"/>
-                    </LinearLayout>
-
-                    <!-- Neural2 label -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="🤖 Neural2 (Very Natural)"
-                        android:textSize="10sp"
-                        android:textColor="#9E9E9E"
-                        android:layout_marginBottom="4dp"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
-                        <Button android:id="@+id/btnVertexVoice3"
-                            android:layout_width="0dp" android:layout_height="36dp"
-                            android:layout_weight="1" android:layout_marginEnd="4dp"
-                            android:text="👩 Neural2-C" android:textSize="9sp"
-                            android:backgroundTint="#E0E0E0" android:textColor="#757575"
-                            android:stateListAnimator="@null"
-                            style="@style/Widget.MaterialComponents.Button"/>
-                        <Button android:id="@+id/btnVertexVoice4"
-                            android:layout_width="0dp" android:layout_height="36dp"
-                            android:layout_weight="1" android:layout_marginEnd="4dp"
-                            android:text="👨 Neural2-D" android:textSize="9sp"
-                            android:backgroundTint="#E0E0E0" android:textColor="#757575"
-                            android:stateListAnimator="@null"
-                            style="@style/Widget.MaterialComponents.Button"/>
-                        <Button android:id="@+id/btnVertexVoice5"
-                            android:layout_width="0dp" android:layout_height="36dp"
-                            android:layout_weight="1" android:layout_marginEnd="4dp"
-                            android:text="👩 Neural2-F" android:textSize="9sp"
-                            android:backgroundTint="#E0E0E0" android:textColor="#757575"
-                            android:stateListAnimator="@null"
-                            style="@style/Widget.MaterialComponents.Button"/>
-                        <Button android:id="@+id/btnVertexVoice6"
-                            android:layout_width="0dp" android:layout_height="36dp"
-                            android:layout_weight="1"
-                            android:text="👨 Neural2-J" android:textSize="9sp"
-                            android:backgroundTint="#E0E0E0" android:textColor="#757575"
-                            android:stateListAnimator="@null"
-                            style="@style/Widget.MaterialComponents.Button"/>
-                    </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/tvVertexVoiceLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Voice: Studio-O (Female) · Vertex AI"
-                        android:textSize="11sp"
-                        android:textColor="#1A73E8"
-                        android:textStyle="italic"/>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- ── Status ── -->
-            <TextView
-                android:id="@+id/tvStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Hold the button below to start recording"
-                android:textSize="14sp"
-                android:textColor="#6C757D"
-                android:gravity="center"
-                android:layout_marginBottom="14dp"/>
-
-            <!-- ── Record Button ── -->
-            <Button
-                android:id="@+id/btnRecord"
-                android:layout_width="160dp"
-                android:layout_height="160dp"
-                android:text="🎙&#10;HOLD TO&#10;RECORD"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:backgroundTint="#E63946"
-                android:textColor="#FFFFFF"
-                android:layout_marginBottom="18dp"/>
-
-            <!-- ── Transcript Card ── -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="14dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="#FFFFFF">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="📝 TRANSCRIPT"
-                        android:textSize="10sp"
-                        android:textStyle="bold"
-                        android:textColor="#6C757D"
-                        android:letterSpacing="0.15"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="TTS ENGINE" android:textSize="10sp" android:textStyle="bold"
+                        android:textColor="#6C757D" android:letterSpacing="0.15"
                         android:layout_marginBottom="8dp"/>
 
-                    <TextView
-                        android:id="@+id/tvResult"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:minHeight="60dp"
-                        android:text="Transcript will appear here after recording..."
-                        android:textSize="16sp"
-                        android:textColor="#1A1A2E"
-                        android:gravity="center"
-                        android:lineSpacingMultiplier="1.4"/>
+                    <!-- 3 Engine Buttons -->
+                    <LinearLayout
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:layout_marginBottom="10dp">
+                        <Button android:id="@+id/btnEngineAndroid"
+                            android:layout_width="0dp" android:layout_height="40dp"
+                            android:layout_weight="1" android:layout_marginEnd="4dp"
+                            android:text="Android" android:textSize="11sp"
+                            android:backgroundTint="#1A73E8" android:textColor="#FFF"
+                            android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                        <Button android:id="@+id/btnEngineChirp"
+                            android:layout_width="0dp" android:layout_height="40dp"
+                            android:layout_weight="1" android:layout_marginEnd="4dp"
+                            android:text="Chirp3-HD" android:textSize="11sp"
+                            android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                            android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                        <Button android:id="@+id/btnEngineVertex"
+                            android:layout_width="0dp" android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:text="Vertex AI" android:textSize="11sp"
+                            android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                            android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                    </LinearLayout>
+
+                    <TextView android:id="@+id/tvEngineLabel"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Android Built-in" android:textSize="13sp"
+                        android:textStyle="bold" android:textColor="#1A1A2E"/>
+                    <TextView android:id="@+id/tvEngineDesc"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Device voice, works offline"
+                        android:textSize="11sp" android:textColor="#9E9E9E"/>
+
+                    <!-- Urdu voice selector shown when Urdu language is active -->
+                    <LinearLayout
+                        android:id="@+id/layoutUrduVoice"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:visibility="gone"
+                        android:layout_marginTop="10dp">
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="URDU VOICE (Cloud TTS)" android:textSize="10sp"
+                            android:textStyle="bold" android:textColor="#6C757D"
+                            android:layout_marginBottom="6dp"/>
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+                            <Button android:id="@+id/btnUrduFemale"
+                                android:layout_width="0dp" android:layout_height="38dp"
+                                android:layout_weight="1" android:layout_marginEnd="6dp"
+                                android:text="Female (A)" android:textSize="12sp"
+                                android:backgroundTint="#1A73E8" android:textColor="#FFF"
+                                android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                            <Button android:id="@+id/btnUrduMale"
+                                android:layout_width="0dp" android:layout_height="38dp"
+                                android:layout_weight="1"
+                                android:text="Male (B)" android:textSize="12sp"
+                                android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                                android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                        </LinearLayout>
+                        <TextView
+                            android:id="@+id/tvUrduVoiceLabel"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="ur-PK-Standard-A (Female) via Cloud TTS"
+                            android:textSize="11sp" android:textColor="#1A73E8"
+                            android:textStyle="italic" android:layout_marginTop="4dp"/>
+                    </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- ── Play Button ── -->
-            <Button
-                android:id="@+id/btnSpeak"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:text="🔊 Play Transcript"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:backgroundTint="#2196F3"
-                android:textColor="#FFFFFF"
+            <!-- ANDROID VOICE CARD -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardAndroidVoice"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp" android:visibility="visible"
+                app:cardCornerRadius="12dp" app:cardElevation="4dp" app:cardBackgroundColor="#FFFFFF">
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="12dp">
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="ANDROID VOICE" android:textSize="10sp" android:textStyle="bold"
+                        android:textColor="#6C757D" android:layout_marginBottom="8dp"/>
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:layout_marginBottom="6dp">
+                        <Button android:id="@+id/btnVoice1" android:layout_width="0dp" android:layout_height="34dp"
+                            android:layout_weight="1" android:layout_marginEnd="4dp" android:text="Female 1"
+                            android:textSize="10sp" android:backgroundTint="#1A73E8" android:textColor="#FFF"
+                            android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                        <Button android:id="@+id/btnVoice2" android:layout_width="0dp" android:layout_height="34dp"
+                            android:layout_weight="1" android:layout_marginEnd="4dp" android:text="Male 1"
+                            android:textSize="10sp" android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                            android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                        <Button android:id="@+id/btnVoice3" android:layout_width="0dp" android:layout_height="34dp"
+                            android:layout_weight="1" android:text="Female 2"
+                            android:textSize="10sp" android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                            android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <Button android:id="@+id/btnVoice4" android:layout_width="0dp" android:layout_height="34dp"
+                            android:layout_weight="1" android:layout_marginEnd="4dp" android:text="Male 2"
+                            android:textSize="10sp" android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                            android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                        <Button android:id="@+id/btnVoice5" android:layout_width="0dp" android:layout_height="34dp"
+                            android:layout_weight="1" android:layout_marginEnd="4dp" android:text="Child"
+                            android:textSize="10sp" android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                            android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                        <Button android:id="@+id/btnVoice6" android:layout_width="0dp" android:layout_height="34dp"
+                            android:layout_weight="1" android:text="Robot"
+                            android:textSize="10sp" android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                            android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                    </LinearLayout>
+                    <TextView android:id="@+id/tvAndroidVoiceLabel"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Voice: Female 1" android:textSize="11sp"
+                        android:textColor="#1A73E8" android:textStyle="italic" android:layout_marginTop="6dp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- CHIRP3-HD VOICE CARD -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardGeminiVoice"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp" android:visibility="gone"
+                app:cardCornerRadius="12dp" app:cardElevation="4dp" app:cardBackgroundColor="#FFFFFF">
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="12dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="CHIRP3-HD VOICES" android:textSize="10sp" android:textStyle="bold"
+                        android:textColor="#6C757D" android:layout_marginBottom="6dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Female" android:textSize="10sp" android:textColor="#9E9E9E"
+                        android:layout_marginBottom="4dp"/>
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:layout_marginBottom="8dp">
+                        <Button android:id="@+id/btnVAchernar" android:layout_width="0dp" android:layout_height="34dp"
+                            android:layout_weight="1" android:layout_marginEnd="4dp" android:text="Aoede"
+                            android:textSize="10sp" android:backgroundTint="#1A73E8" android:textColor="#FFF"
+                            android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                        <Button android:id="@+id/btnVAoede" android:layout_width="0dp" android:layout_height="34dp"
+                            android:layout_weight="1" android:layout_marginEnd="4dp" android:text="Kore"
+                            android:textSize="10sp" android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                            android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                        <Button android:id="@+id/btnVKore" android:layout_width="0dp" android:layout_height="34dp"
+                            android:layout_weight="1" android:layout_marginEnd="4dp" android:text="Zephyr"
+                            android:textSize="10sp" android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                            android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                        <Button android:id="@+id/btnVZephyr" android:layout_width="0dp" android:layout_height="34dp"
+                            android:layout_weight="1" android:text="Leda"
+                            android:textSize="10sp" android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                            android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                    </LinearLayout>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Male" android:textSize="10sp" android:textColor="#9E9E9E"
+                        android:layout_marginBottom="4dp"/>
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:layout_marginBottom="8dp">
+                        <Button android:id="@+id/btnVCharon" android:layout_width="0dp" android:layout_height="34dp"
+                            android:layout_weight="1" android:layout_marginEnd="4dp" android:text="Charon"
+                            android:textSize="10sp" android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                            android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                        <Button android:id="@+id/btnVPuck" android:layout_width="0dp" android:layout_height="34dp"
+                            android:layout_weight="1" android:layout_marginEnd="4dp" android:text="Fenrir"
+                            android:textSize="10sp" android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                            android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                        <Button android:id="@+id/btnVFenrir" android:layout_width="0dp" android:layout_height="34dp"
+                            android:layout_weight="1" android:layout_marginEnd="4dp" android:text="Orus"
+                            android:textSize="10sp" android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                            android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                        <Button android:id="@+id/btnVOrus" android:layout_width="0dp" android:layout_height="34dp"
+                            android:layout_weight="1" android:text="Puck"
+                            android:textSize="10sp" android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                            android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                    </LinearLayout>
+                    <TextView android:id="@+id/tvGeminiVoiceLabel"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Voice: Aoede (Female)" android:textSize="11sp"
+                        android:textColor="#1A73E8" android:textStyle="italic"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- VERTEX AI VOICE CARD -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardVertexVoice"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp" android:visibility="gone"
+                app:cardCornerRadius="12dp" app:cardElevation="4dp" app:cardBackgroundColor="#FFFFFF">
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="12dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="center_vertical"
+                        android:layout_marginBottom="6dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="VERTEX AI VOICES" android:textSize="10sp" android:textStyle="bold"
+                            android:textColor="#6C757D"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Bearer Token" android:textSize="10sp"
+                            android:textColor="#E65100" android:background="#FFF3E0"
+                            android:paddingHorizontal="6dp" android:paddingVertical="2dp"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:layout_marginBottom="6dp">
+                        <Button android:id="@+id/btnVertexVoice1" android:layout_width="0dp" android:layout_height="34dp"
+                            android:layout_weight="1" android:layout_marginEnd="4dp" android:text="Studio-O"
+                            android:textSize="10sp" android:backgroundTint="#1A73E8" android:textColor="#FFF"
+                            android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                        <Button android:id="@+id/btnVertexVoice2" android:layout_width="0dp" android:layout_height="34dp"
+                            android:layout_weight="1" android:layout_marginEnd="4dp" android:text="Studio-Q"
+                            android:textSize="10sp" android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                            android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                        <Button android:id="@+id/btnVertexVoice3" android:layout_width="0dp" android:layout_height="34dp"
+                            android:layout_weight="1" android:text="Neural2-C"
+                            android:textSize="10sp" android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                            android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:layout_marginBottom="8dp">
+                        <Button android:id="@+id/btnVertexVoice4" android:layout_width="0dp" android:layout_height="34dp"
+                            android:layout_weight="1" android:layout_marginEnd="4dp" android:text="Neural2-D"
+                            android:textSize="10sp" android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                            android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                        <Button android:id="@+id/btnVertexVoice5" android:layout_width="0dp" android:layout_height="34dp"
+                            android:layout_weight="1" android:layout_marginEnd="4dp" android:text="Neural2-F"
+                            android:textSize="10sp" android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                            android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                        <Button android:id="@+id/btnVertexVoice6" android:layout_width="0dp" android:layout_height="34dp"
+                            android:layout_weight="1" android:text="Neural2-J"
+                            android:textSize="10sp" android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                            android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
+                    </LinearLayout>
+                    <TextView android:id="@+id/tvVertexVoiceLabel"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Voice: Studio-O (Female)" android:textSize="11sp"
+                        android:textColor="#1A73E8" android:textStyle="italic"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Status -->
+            <TextView android:id="@+id/tvStatus"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="Hold the button below to start recording"
+                android:textSize="13sp" android:textColor="#6C757D"
+                android:gravity="center" android:layout_marginBottom="12dp"
+                android:background="#FFFFFF" android:padding="10dp"
+                android:fontFamily="monospace"/>
+
+            <!-- Record Button -->
+            <Button android:id="@+id/btnRecord"
+                android:layout_width="150dp" android:layout_height="150dp"
+                android:text="HOLD TO RECORD" android:textSize="13sp" android:textStyle="bold"
+                android:backgroundTint="#E63946" android:textColor="#FFFFFF"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Transcript Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp" app:cardCornerRadius="12dp"
+                app:cardElevation="4dp" app:cardBackgroundColor="#FFFFFF">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="14dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="TRANSCRIPT" android:textSize="10sp" android:textStyle="bold"
+                        android:textColor="#6C757D" android:layout_marginBottom="8dp"/>
+                    <TextView android:id="@+id/tvResult"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:minHeight="60dp" android:text="Transcript will appear here..."
+                        android:textSize="15sp" android:textColor="#1A1A2E"
+                        android:gravity="center" android:lineSpacingMultiplier="1.4"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Play Button -->
+            <Button android:id="@+id/btnSpeak"
+                android:layout_width="match_parent" android:layout_height="52dp"
+                android:text="Play Transcript" android:textSize="15sp" android:textStyle="bold"
+                android:backgroundTint="#2196F3" android:textColor="#FFFFFF"
                 android:enabled="false"/>
 
         </LinearLayout>
     </ScrollView>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

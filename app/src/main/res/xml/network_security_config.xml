@@ -6,11 +6,8 @@
         </trust-anchors>
     </base-config>
     <domain-config cleartextTrafficPermitted="false">
-        <!-- Google Cloud Speech-to-Text -->
         <domain includeSubdomains="true">speech.googleapis.com</domain>
-        <!-- Google Cloud Text-to-Speech (Chirp3-HD) -->
         <domain includeSubdomains="true">texttospeech.googleapis.com</domain>
-        <!-- Google Vertex AI Text-to-Speech -->
         <domain includeSubdomains="true">us-central1-texttospeech.googleapis.com</domain>
     </domain-config>
 </network-security-config>
