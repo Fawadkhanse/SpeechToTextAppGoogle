@@ -24,11 +24,143 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Speech to Text"
+                android:text="🎙 Speech to Text"
                 android:textSize="22sp"
                 android:textStyle="bold"
                 android:textColor="#1A1A2E"
                 android:layout_marginBottom="12dp"/>
+
+            <!-- ══════════════════════════════════════ -->
+            <!-- STT VERSION CARD (NEW)                 -->
+            <!-- ══════════════════════════════════════ -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🎤 STT ENGINE"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:textColor="#6C757D"
+                        android:letterSpacing="0.15"
+                        android:layout_marginBottom="8dp"/>
+
+                    <!-- V1 / V2 toggle buttons -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <Button
+                            android:id="@+id/btnSttV1"
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="6dp"
+                            android:text="V1 · Classic"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:backgroundTint="#1A73E8"
+                            android:textColor="#FFF"
+                            android:stateListAnimator="@null"
+                            style="@style/Widget.MaterialComponents.Button"/>
+
+                        <Button
+                            android:id="@+id/btnSttV2"
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:text="V2 · Chirp"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:backgroundTint="#E0E0E0"
+                            android:textColor="#757575"
+                            android:stateListAnimator="@null"
+                            style="@style/Widget.MaterialComponents.Button"/>
+                    </LinearLayout>
+
+                    <!-- STT V2 model selector (only shown when V2 active) -->
+                    <LinearLayout
+                        android:id="@+id/layoutV2Models"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        android:layout_marginBottom="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="MODEL"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:textColor="#6C757D"
+                            android:layout_marginBottom="6dp"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <Button android:id="@+id/btnModelChirp"
+                                android:layout_width="0dp" android:layout_height="34dp"
+                                android:layout_weight="1" android:layout_marginEnd="4dp"
+                                android:text="Chirp" android:textSize="10sp"
+                                android:backgroundTint="#1A73E8" android:textColor="#FFF"
+                                android:stateListAnimator="@null"
+                                style="@style/Widget.MaterialComponents.Button"/>
+
+                            <Button android:id="@+id/btnModelLong"
+                                android:layout_width="0dp" android:layout_height="34dp"
+                                android:layout_weight="1" android:layout_marginEnd="4dp"
+                                android:text="Long" android:textSize="10sp"
+                                android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                                android:stateListAnimator="@null"
+                                style="@style/Widget.MaterialComponents.Button"/>
+
+                            <Button android:id="@+id/btnModelShort"
+                                android:layout_width="0dp" android:layout_height="34dp"
+                                android:layout_weight="1" android:layout_marginEnd="4dp"
+                                android:text="Short" android:textSize="10sp"
+                                android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                                android:stateListAnimator="@null"
+                                style="@style/Widget.MaterialComponents.Button"/>
+
+                            <Button android:id="@+id/btnModelLatest"
+                                android:layout_width="0dp" android:layout_height="34dp"
+                                android:layout_weight="1"
+                                android:text="Latest" android:textSize="10sp"
+                                android:backgroundTint="#E0E0E0" android:textColor="#757575"
+                                android:stateListAnimator="@null"
+                                style="@style/Widget.MaterialComponents.Button"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- STT description label -->
+                    <TextView
+                        android:id="@+id/tvSttLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="speech.googleapis.com/v1 · Works with API key"
+                        android:textSize="11sp"
+                        android:textColor="#9E9E9E"
+                        android:layout_marginTop="4dp"/>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
             <!-- Language Toggle -->
             <LinearLayout
@@ -40,12 +172,12 @@
                 android:layout_marginBottom="4dp">
                 <Button android:id="@+id/btnLangEn"
                     android:layout_width="110dp" android:layout_height="38dp"
-                    android:text="English" android:textSize="12sp" android:textStyle="bold"
+                    android:text="🇺🇸 English" android:textSize="12sp" android:textStyle="bold"
                     android:backgroundTint="#1A73E8" android:textColor="#FFF"
                     android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
                 <Button android:id="@+id/btnLangUr"
                     android:layout_width="110dp" android:layout_height="38dp"
-                    android:text="اردو" android:textSize="12sp" android:textStyle="bold"
+                    android:text="🇵🇰 اردو" android:textSize="12sp" android:textStyle="bold"
                     android:backgroundTint="#E0E0E0" android:textColor="#757575"
                     android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
             </LinearLayout>
@@ -56,7 +188,7 @@
                 android:textColor="#1A73E8" android:textStyle="italic"
                 android:layout_marginBottom="12dp"/>
 
-            <!-- TTS ENGINE CARD with 3 buttons -->
+            <!-- TTS ENGINE CARD -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp" app:cardCornerRadius="12dp"
@@ -67,11 +199,10 @@
 
                     <TextView
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="TTS ENGINE" android:textSize="10sp" android:textStyle="bold"
+                        android:text="🔊 TTS ENGINE" android:textSize="10sp" android:textStyle="bold"
                         android:textColor="#6C757D" android:letterSpacing="0.15"
                         android:layout_marginBottom="8dp"/>
 
-                    <!-- 3 Engine Buttons -->
                     <LinearLayout
                         android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:orientation="horizontal" android:layout_marginBottom="10dp">
@@ -90,21 +221,22 @@
                         <Button android:id="@+id/btnEngineVertex"
                             android:layout_width="0dp" android:layout_height="40dp"
                             android:layout_weight="1"
-                            android:text="Vertex AI" android:textSize="11sp"
+                            android:visibility="gone"
+                            android:text="Cloud v1β" android:textSize="11sp"
                             android:backgroundTint="#E0E0E0" android:textColor="#757575"
                             android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
                     </LinearLayout>
 
                     <TextView android:id="@+id/tvEngineLabel"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="Android Built-in" android:textSize="13sp"
+                        android:text="📱 Android Built-in" android:textSize="13sp"
                         android:textStyle="bold" android:textColor="#1A1A2E"/>
                     <TextView android:id="@+id/tvEngineDesc"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="Device voice, works offline"
                         android:textSize="11sp" android:textColor="#9E9E9E"/>
 
-                    <!-- Urdu voice selector shown when Urdu language is active -->
+                    <!-- Urdu voice selector -->
                     <LinearLayout
                         android:id="@+id/layoutUrduVoice"
                         android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -130,8 +262,7 @@
                                 android:backgroundTint="#E0E0E0" android:textColor="#757575"
                                 android:stateListAnimator="@null" style="@style/Widget.MaterialComponents.Button"/>
                         </LinearLayout>
-                        <TextView
-                            android:id="@+id/tvUrduVoiceLabel"
+                        <TextView android:id="@+id/tvUrduVoiceLabel"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:text="ur-PK-Standard-A (Female) via Cloud TTS"
                             android:textSize="11sp" android:textColor="#1A73E8"
@@ -151,7 +282,7 @@
                     android:orientation="vertical" android:padding="12dp">
                     <TextView
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="ANDROID VOICE" android:textSize="10sp" android:textStyle="bold"
+                        android:text="📱 ANDROID VOICE" android:textSize="10sp" android:textStyle="bold"
                         android:textColor="#6C757D" android:layout_marginBottom="8dp"/>
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:orientation="horizontal" android:layout_marginBottom="6dp">
@@ -200,7 +331,7 @@
                     android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:orientation="vertical" android:padding="12dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="CHIRP3-HD VOICES" android:textSize="10sp" android:textStyle="bold"
+                        android:text="✨ CHIRP3-HD VOICES" android:textSize="10sp" android:textStyle="bold"
                         android:textColor="#6C757D" android:layout_marginBottom="6dp"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="Female" android:textSize="10sp" android:textColor="#9E9E9E"
@@ -253,7 +384,7 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- VERTEX AI VOICE CARD -->
+            <!-- CLOUD TTS v1beta1 VOICE CARD -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardVertexVoice"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -262,18 +393,9 @@
                 <LinearLayout
                     android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:orientation="vertical" android:padding="12dp">
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:orientation="horizontal" android:gravity="center_vertical"
-                        android:layout_marginBottom="6dp">
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="VERTEX AI VOICES" android:textSize="10sp" android:textStyle="bold"
-                            android:textColor="#6C757D"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="Bearer Token" android:textSize="10sp"
-                            android:textColor="#E65100" android:background="#FFF3E0"
-                            android:paddingHorizontal="6dp" android:paddingVertical="2dp"/>
-                    </LinearLayout>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="🚀 CLOUD TTS v1beta1 VOICES" android:textSize="10sp" android:textStyle="bold"
+                        android:textColor="#6C757D" android:layout_marginBottom="6dp"/>
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:orientation="horizontal" android:layout_marginBottom="6dp">
                         <Button android:id="@+id/btnVertexVoice1" android:layout_width="0dp" android:layout_height="34dp"
@@ -323,7 +445,7 @@
             <!-- Record Button -->
             <Button android:id="@+id/btnRecord"
                 android:layout_width="150dp" android:layout_height="150dp"
-                android:text="HOLD TO RECORD" android:textSize="13sp" android:textStyle="bold"
+                android:text="🎙&#10;HOLD TO&#10;RECORD" android:textSize="13sp" android:textStyle="bold"
                 android:backgroundTint="#E63946" android:textColor="#FFFFFF"
                 android:layout_marginBottom="16dp"/>
 
@@ -335,20 +457,30 @@
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:orientation="vertical" android:padding="14dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="TRANSCRIPT" android:textSize="10sp" android:textStyle="bold"
+                        android:text="📝 TRANSCRIPT" android:textSize="10sp" android:textStyle="bold"
                         android:textColor="#6C757D" android:layout_marginBottom="8dp"/>
                     <TextView android:id="@+id/tvResult"
                         android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:minHeight="60dp" android:text="Transcript will appear here..."
                         android:textSize="15sp" android:textColor="#1A1A2E"
                         android:gravity="center" android:lineSpacingMultiplier="1.4"/>
+
+                    <!-- STT version badge shown after recognition -->
+                    <TextView android:id="@+id/tvSttBadge"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="10sp" android:textColor="#34A853"
+                        android:background="#E6F4EA"
+                        android:paddingHorizontal="8dp" android:paddingVertical="3dp"
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
             <!-- Play Button -->
             <Button android:id="@+id/btnSpeak"
                 android:layout_width="match_parent" android:layout_height="52dp"
-                android:text="Play Transcript" android:textSize="15sp" android:textStyle="bold"
+                android:text="🔊 Play Transcript" android:textSize="15sp" android:textStyle="bold"
                 android:backgroundTint="#2196F3" android:textColor="#FFFFFF"
                 android:enabled="false"/>
 
