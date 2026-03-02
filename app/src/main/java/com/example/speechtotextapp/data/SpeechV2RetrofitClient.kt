@@ -28,8 +28,8 @@ interface SpeechV2ApiService {
 
 object SpeechV2RetrofitClient {
 
-    private const val BASE_URL   = "https://speech.googleapis.com/"
-    const val PROJECT_ID         = "hale-carport-488819-q4"
+    private const val BASE_URL = "https://speech.googleapis.com/"
+    const val PROJECT_ID       = "hale-carport-488819-q4"
 
     val service: SpeechV2ApiService by lazy {
         val logging = HttpLoggingInterceptor().apply {
@@ -60,6 +60,9 @@ object SpeechV2RetrofitClient {
     /**
      * Gets a fresh/cached OAuth2 Bearer token automatically,
      * then calls the STT V2 recognize endpoint.
+     *
+     * URL path  → uses locationForModel(model)  e.g. "us-central1" for chirp
+     * Body JSON → recognizer field always "global" (Google API quirk)
      */
     suspend fun recognize(request: SpeechV2Request, model: String): Response<SpeechV2Response> {
         val token    = ServiceAccountAuth.getBearerToken()

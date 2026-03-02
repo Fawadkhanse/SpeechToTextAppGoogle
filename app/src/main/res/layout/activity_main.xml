@@ -121,6 +121,7 @@
                                 android:text="Chirp" android:textSize="10sp"
                                 android:backgroundTint="#1A73E8" android:textColor="#FFF"
                                 android:stateListAnimator="@null"
+                                android:visibility="gone"
                                 style="@style/Widget.MaterialComponents.Button"/>
 
                             <Button android:id="@+id/btnModelLong"

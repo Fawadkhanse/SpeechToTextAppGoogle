@@ -23,9 +23,9 @@ import java.security.spec.PKCS8EncodedKeySpec
  */
 object ServiceAccountAuth {
 
-    private const val TAG = "ServiceAccountAuth"
+    private const val TAG       = "ServiceAccountAuth"
     private const val TOKEN_URL = "https://oauth2.googleapis.com/token"
-    private const val SCOPE = "https://www.googleapis.com/auth/cloud-platform"
+    private const val SCOPE     = "https://www.googleapis.com/auth/cloud-platform"
 
     // ── Service account credentials ───────────────────────────────────────────
     // ⚠️  In production: load these from encrypted storage, NOT hardcoded.
@@ -72,28 +72,22 @@ UOa35pOe/mT75TxugNsG7A8=
      */
     suspend fun getBearerToken(): String = withContext(Dispatchers.IO) {
         val nowMs = System.currentTimeMillis()
-        // Reuse cached token if still valid (5-min buffer before expiry)
         if (cachedToken != null && nowMs < tokenExpiryMs - 5 * 60 * 1000) {
             Log.d(TAG, "Using cached token")
             return@withContext cachedToken!!
         }
         Log.d(TAG, "Fetching new OAuth2 token...")
         val token = fetchNewToken()
-        cachedToken    = token
-        tokenExpiryMs  = nowMs + 3600_000L   // tokens are valid for 1 hour
+        cachedToken   = token
+        tokenExpiryMs = nowMs + 3600_000L
         token
     }
 
-    // ── Internal: build JWT → exchange for access_token ──────────────────────
-
     private fun fetchNewToken(): String {
-        val nowSec  = System.currentTimeMillis() / 1000
-        val expSec  = nowSec + 3600
+        val nowSec = System.currentTimeMillis() / 1000
+        val expSec = nowSec + 3600
 
-        // 1. JWT Header
         val header  = base64url("""{"alg":"RS256","typ":"JWT"}""")
-
-        // 2. JWT Payload (claim set)
         val payload = base64url("""
             {
               "iss":   "$CLIENT_EMAIL",
@@ -104,7 +98,6 @@ UOa35pOe/mT75TxugNsG7A8=
             }
         """.trimIndent())
 
-        // 3. Sign header.payload with RSA-SHA256
         val signingInput = "$header.$payload"
         val privateKey   = loadPrivateKey()
         val sig          = Signature.getInstance("SHA256withRSA").apply {
@@ -112,16 +105,14 @@ UOa35pOe/mT75TxugNsG7A8=
             update(signingInput.toByteArray(Charsets.US_ASCII))
         }.sign()
         val signature = Base64.encodeToString(sig, Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING)
-
         val jwt = "$signingInput.$signature"
 
-        // 4. Exchange JWT for access_token
         val postBody = "grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=$jwt"
         val conn = (URL(TOKEN_URL).openConnection() as HttpURLConnection).apply {
-            requestMethod   = "POST"
-            doOutput        = true
-            connectTimeout  = 15_000
-            readTimeout     = 15_000
+            requestMethod  = "POST"
+            doOutput       = true
+            connectTimeout = 15_000
+            readTimeout    = 15_000
             setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
         }
         conn.outputStream.use { it.write(postBody.toByteArray()) }
@@ -131,7 +122,6 @@ UOa35pOe/mT75TxugNsG7A8=
             conn.inputStream.bufferedReader().readText()
         else
             conn.errorStream.bufferedReader().readText()
-
         conn.disconnect()
 
         if (responseCode != 200) {
@@ -139,8 +129,7 @@ UOa35pOe/mT75TxugNsG7A8=
             throw RuntimeException("OAuth2 token error $responseCode: $body")
         }
 
-        val json = JSONObject(body)
-        return json.getString("access_token")
+        return JSONObject(body).getString("access_token")
     }
 
     private fun loadPrivateKey(): PrivateKey {
@@ -155,7 +144,6 @@ UOa35pOe/mT75TxugNsG7A8=
             .generatePrivate(PKCS8EncodedKeySpec(decoded))
     }
 
-    /** Base64url-encode a JSON string (no padding) */
     private fun base64url(json: String): String =
         Base64.encodeToString(
             json.toByteArray(Charsets.UTF_8),
