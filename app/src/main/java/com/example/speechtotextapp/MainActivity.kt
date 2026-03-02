@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var btnUrduFemale: Button
     private lateinit var btnUrduMale: Button
     private lateinit var tvUrduVoiceLabel: TextView
-    private var selectedUrduVoice = "ur-PK-Standard-A"
+    private var selectedUrduVoice = "ur-PK-Wavenet-A"
 
     private lateinit var btnVoice1: Button; private lateinit var btnVoice2: Button
     private lateinit var btnVoice3: Button; private lateinit var btnVoice4: Button
@@ -224,15 +224,18 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         btnEngineVertex.setOnClickListener  { selectEngine(TtsEngine.CLOUD_V1BETA1) }
         selectEngine(TtsEngine.ANDROID)
 
+        // In onCreate, update these lines:
         btnUrduFemale.setOnClickListener {
-            selectedUrduVoice = "ur-PK-Standard-A"
+            // Change from ur-PK-Wavenet-A to ur-IN-Wavenet-A
+            selectedUrduVoice = "ur-IN-Wavenet-A"  // Changed
             highlightBtn(btnUrduFemale, true); highlightBtn(btnUrduMale, false)
-            tvUrduVoiceLabel.text = "ur-PK-Standard-A (Female) via Cloud TTS"
+            tvUrduVoiceLabel.text = "ur-IN-Wavenet-A (Female) via Cloud TTS"  // Updated
         }
         btnUrduMale.setOnClickListener {
-            selectedUrduVoice = "ur-PK-Standard-B"
+            // Change from ur-PK-Wavenet-B to ur-IN-Wavenet-B
+            selectedUrduVoice = "ur-IN-Wavenet-B"  // Changed
             highlightBtn(btnUrduFemale, false); highlightBtn(btnUrduMale, true)
-            tvUrduVoiceLabel.text = "ur-PK-Standard-B (Male) via Cloud TTS"
+            tvUrduVoiceLabel.text = "ur-IN-Wavenet-B (Male) via Cloud TTS"  // Updated
         }
 
         androidVoiceButtons.forEachIndexed { i, btn -> btn.setOnClickListener { selectAndroidVoice(i) } }
@@ -309,9 +312,14 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 SttVersion.V1 -> "⏳ Recognizing (STT V1)..."
                 SttVersion.V2 -> "⏳ Recognizing (STT V2 · $selectedV2Model)..."
             }
-            val transcript = when (currentSttVersion) {
-                SttVersion.V1 -> recognizeSpeechV1(base64Audio)
-                SttVersion.V2 -> recognizeSpeechV2(base64Audio)
+            // AFTER — auto-fallback to V1 for Urdu since STT V2 doesn't support ur-PK
+            val usingV1Fallback = currentSttVersion == SttVersion.V2 && selectedLangCode == "ur-PK"
+            if (usingV1Fallback) {
+                tvStatus.text = "ℹ️ STT V2 doesn't support Urdu — using V1..."
+            }
+            val transcript = when {
+                currentSttVersion == SttVersion.V1 || usingV1Fallback -> recognizeSpeechV1(base64Audio)
+                else -> recognizeSpeechV2(base64Audio)
             }
             lastTranscript = transcript; tvResult.text = transcript
             if (transcript.startsWith("❌") || transcript.startsWith("🔇")) {
@@ -319,9 +327,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 tvSttBadge.visibility = View.GONE
             } else {
                 tvStatus.text = "✅ Transcript ready!"; btnSpeak.isEnabled = true
-                tvSttBadge.text = when (currentSttVersion) {
-                    SttVersion.V1 -> "✓ STT V1 · v1/speech:recognize"
-                    SttVersion.V2 -> "✓ STT V2 · $selectedV2Model model"
+                tvSttBadge.text = when {
+                    usingV1Fallback -> "✓ STT V1 (fallback — V2 doesn't support ur-PK)"
+                    currentSttVersion == SttVersion.V1 -> "✓ STT V1 · v1/speech:recognize"
+                    else -> "✓ STT V2 · $selectedV2Model model"
                 }
                 tvSttBadge.visibility = View.VISIBLE
                 speakText(transcript)
@@ -447,9 +456,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             tvLangLabel.text  = "Language: English (en-US)"
             highlightBtn(btnLangEn, true); highlightBtn(btnLangUr, false)
         } else {
-            selectedLangCode  = "ur-PK"
-            selectedTtsLocale = Locale("ur", "PK")
-            tvLangLabel.text  = "زبان: اردو (ur-PK)"
+            // Change this from ur-PK to ur-IN
+            selectedLangCode  = "ur-IN"  // Changed from "ur-PK"
+            selectedTtsLocale = Locale("ur", "IN")  // Changed from "ur", "PK"
+            tvLangLabel.text  = "زبان: اردو (ur-IN)"  // Updated display text
             highlightBtn(btnLangUr, true); highlightBtn(btnLangEn, false)
         }
         if (androidTtsReady) androidTts?.setLanguage(selectedTtsLocale)
@@ -549,22 +559,30 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private fun speakUrduWithCloudTts(text: String) {
         val req = TtsSynthesizeRequest(
             TtsInput(text),
-            TtsVoice("ur-PK", selectedUrduVoice),
+            // Change languageCode from ur-PK to ur-IN
+            TtsVoice("ur-IN", selectedUrduVoice),  // Changed
             TtsAudioConfig("LINEAR16", 24000)
         )
         isSpeaking = true; btnSpeak.text = "⏳ Generating..."; btnSpeak.isEnabled = false
-        tvStatus.text = "🌐 Urdu ($selectedUrduVoice)..."
+        tvStatus.text = "🌐 Urdu (${selectedUrduVoice})..."
         lifecycleScope.launch {
             try {
                 val r = withContext(Dispatchers.IO) { TtsRetrofitClient.synthesize(API_KEY, req) }
                 if (r.isSuccessful && !r.body()?.audioContent.isNullOrEmpty()) {
                     tvStatus.text = "🔊 Playing Urdu..."
                     playPcmAudio(Base64.decode(r.body()!!.audioContent!!, Base64.DEFAULT))
-                } else { tvStatus.text = "❌ Urdu TTS error ${r.code()}"; resetSpeakButton() }
-            } catch (e: Exception) { tvStatus.text = "❌ ${e.message}"; resetSpeakButton() }
+                } else {
+                    tvStatus.text = "❌ Urdu TTS error ${r.code()}"
+                    Log.e("URDU_TTS", "Error: ${r.errorBody()?.string()}")
+                    resetSpeakButton()
+                }
+            } catch (e: Exception) {
+                tvStatus.text = "❌ ${e.message}"
+                Log.e("URDU_TTS", "Exception: ${e.message}")
+                resetSpeakButton()
+            }
         }
     }
-
     // ── Cloud TTS v1beta1 (Studio / Neural2) ─────────────────────────────────
 
     private fun speakWithCloudV1Beta1(text: String) {
