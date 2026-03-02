@@ -25,7 +25,6 @@ object VertexTtsRetrofitClient {
 
     // Same endpoint as Chirp3-HD — Studio & Neural2 voices work here too
     private const val BASE_URL = "https://texttospeech.googleapis.com/"
-
     private val service: VertexTtsApiService by lazy {
         val logging = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
