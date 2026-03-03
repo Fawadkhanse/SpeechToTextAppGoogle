@@ -24,6 +24,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.speechtotextapp.data.RetrofitClient
 import com.example.speechtotextapp.data.SpeechV2RetrofitClient
 import com.example.speechtotextapp.data.TtsRetrofitClient
+import com.example.speechtotextapp.data.TtsV2NewRetrofitClient
 import com.example.speechtotextapp.helper.AudioRecorder
 import com.example.speechtotextapp.model.ExplicitDecodingConfig
 import com.example.speechtotextapp.model.RecognitionAudio
@@ -35,6 +36,9 @@ import com.example.speechtotextapp.model.TtsAudioConfig
 import com.example.speechtotextapp.model.TtsInput
 import com.example.speechtotextapp.model.TtsSynthesizeRequest
 import com.example.speechtotextapp.model.TtsV2AudioConfig
+import com.example.speechtotextapp.model.TtsV2NewAudioConfig
+import com.example.speechtotextapp.model.TtsV2NewSynthesizeRequest
+import com.example.speechtotextapp.model.TtsV2NewVoice
 import com.example.speechtotextapp.model.TtsV2SynthesizeRequest
 import com.example.speechtotextapp.model.TtsV2Voice
 import com.example.speechtotextapp.model.TtsVoice
@@ -48,14 +52,14 @@ enum class TtsEngine { ANDROID, CHIRP_V1, CLOUD_V1BETA1 }
 
 class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
-    // ⚠️ getString() cannot be called at field-init time (before onCreate/setContentView).
-    // Read it lazily inside onCreate instead.
     private lateinit var API_KEY: String
     private val RECORD_PERMISSION_CODE = 101
 
+    // ── STT state ─────────────────────────────────────────────────────────────
     private var currentSttVersion = SttVersion.V1
     private var selectedV2Model   = "long"
 
+    // ── STT UI ────────────────────────────────────────────────────────────────
     private lateinit var btnSttV1: Button
     private lateinit var btnSttV2: Button
     private lateinit var layoutV2Models: View
@@ -69,6 +73,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private val v2Models      = listOf("chirp", "long", "short", "latest_long")
     private val v2ModelLabels = listOf("Chirp", "Long", "Short", "Latest")
 
+    // ── Common UI ─────────────────────────────────────────────────────────────
     private lateinit var btnRecord: Button
     private lateinit var btnSpeak: Button
     private lateinit var btnLangEn: Button
@@ -76,6 +81,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var tvStatus: TextView
     private lateinit var tvResult: TextView
     private lateinit var tvLangLabel: TextView
+
+    // ── V1 TTS UI ─────────────────────────────────────────────────────────────
+    private lateinit var layoutV1Tts: View
     private lateinit var tvEngineLabel: TextView
     private lateinit var tvEngineDesc: TextView
     private lateinit var btnEngineAndroid: Button
@@ -90,6 +98,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var tvUrduVoiceLabel: TextView
     private var selectedUrduVoice = "ur-PK-Standard-B"
 
+    // Android voice buttons (V1 only)
     private lateinit var btnVoice1: Button; private lateinit var btnVoice2: Button
     private lateinit var btnVoice3: Button; private lateinit var btnVoice4: Button
     private lateinit var btnVoice5: Button; private lateinit var btnVoice6: Button
@@ -103,6 +112,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     )
     private var selectedAndroidVoiceIndex = 0
 
+    // Chirp3-HD buttons (V1 only)
     private lateinit var btnVAchernar: Button; private lateinit var btnVAoede: Button
     private lateinit var btnVKore: Button;     private lateinit var btnVZephyr: Button
     private lateinit var btnVCharon: Button;   private lateinit var btnVPuck: Button
@@ -122,6 +132,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     )
     private var selectedChirpVoiceIndex = 0
 
+    // Cloud v1beta1 buttons (V1 only)
     private lateinit var btnVertexVoice1: Button; private lateinit var btnVertexVoice2: Button
     private lateinit var btnVertexVoice3: Button; private lateinit var btnVertexVoice4: Button
     private lateinit var btnVertexVoice5: Button; private lateinit var btnVertexVoice6: Button
@@ -138,6 +149,27 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     )
     private var selectedV2VoiceIndex = 0
 
+    // ── V2 TTS UI ─────────────────────────────────────────────────────────────
+    private lateinit var layoutV2Tts: View
+    private lateinit var cardV2TtsVoice: CardView
+    private lateinit var btnV2TtsVoice1: Button; private lateinit var btnV2TtsVoice2: Button
+    private lateinit var btnV2TtsVoice3: Button; private lateinit var btnV2TtsVoice4: Button
+    private lateinit var btnV2TtsVoice5: Button; private lateinit var btnV2TtsVoice6: Button
+    private val v2TtsVoiceButtons get() = listOf(btnV2TtsVoice1, btnV2TtsVoice2, btnV2TtsVoice3, btnV2TtsVoice4, btnV2TtsVoice5, btnV2TtsVoice6)
+    private lateinit var tvV2TtsVoiceLabel: TextView
+
+    data class TtsV2Voice2(val displayName: String, val gender: String, val voiceId: String)
+    private val ttsV2Voices = listOf(
+        TtsV2Voice2("Aoede",  "Female", "en-US-Chirp3-HD-Aoede"),
+        TtsV2Voice2("Kore",   "Female", "en-US-Chirp3-HD-Kore"),
+        TtsV2Voice2("Zephyr", "Female", "en-US-Chirp3-HD-Zephyr"),
+        TtsV2Voice2("Charon", "Male",   "en-US-Chirp3-HD-Charon"),
+        TtsV2Voice2("Fenrir", "Male",   "en-US-Chirp3-HD-Fenrir"),
+        TtsV2Voice2("Puck",   "Male",   "en-US-Chirp3-HD-Puck")
+    )
+    private var selectedV2TtsVoiceIndex = 0
+
+    // ── Playback / misc state ─────────────────────────────────────────────────
     private var audioTrack: AudioTrack? = null
     private var isSpeaking = false
     private var androidTts: TextToSpeech? = null
@@ -157,6 +189,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         API_KEY = getString(R.string.key)
 
+        // STT UI
         btnSttV1       = findViewById(R.id.btnSttV1)
         btnSttV2       = findViewById(R.id.btnSttV2)
         layoutV2Models = findViewById(R.id.layoutV2Models)
@@ -166,15 +199,20 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         btnModelLatest = findViewById(R.id.btnModelLatest)
         tvSttLabel     = findViewById(R.id.tvSttLabel)
         tvSttBadge     = findViewById(R.id.tvSttBadge)
-        btnRecord      = findViewById(R.id.btnRecord)
-        btnSpeak       = findViewById(R.id.btnSpeak)
-        btnLangEn      = findViewById(R.id.btnLangEn)
-        btnLangUr      = findViewById(R.id.btnLangUr)
-        tvStatus       = findViewById(R.id.tvStatus)
-        tvResult       = findViewById(R.id.tvResult)
-        tvLangLabel    = findViewById(R.id.tvLangLabel)
-        tvEngineLabel  = findViewById(R.id.tvEngineLabel)
-        tvEngineDesc   = findViewById(R.id.tvEngineDesc)
+
+        // Common UI
+        btnRecord   = findViewById(R.id.btnRecord)
+        btnSpeak    = findViewById(R.id.btnSpeak)
+        btnLangEn   = findViewById(R.id.btnLangEn)
+        btnLangUr   = findViewById(R.id.btnLangUr)
+        tvStatus    = findViewById(R.id.tvStatus)
+        tvResult    = findViewById(R.id.tvResult)
+        tvLangLabel = findViewById(R.id.tvLangLabel)
+
+        // V1 TTS UI
+        layoutV1Tts      = findViewById(R.id.layoutV1Tts)
+        tvEngineLabel    = findViewById(R.id.tvEngineLabel)
+        tvEngineDesc     = findViewById(R.id.tvEngineDesc)
         btnEngineAndroid = findViewById(R.id.btnEngineAndroid)
         btnEngineChirp   = findViewById(R.id.btnEngineChirp)
         btnEngineVertex  = findViewById(R.id.btnEngineVertex)
@@ -199,6 +237,17 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         btnVertexVoice5 = findViewById(R.id.btnVertexVoice5); btnVertexVoice6 = findViewById(R.id.btnVertexVoice6)
         tvVertexVoiceLabel = findViewById(R.id.tvVertexVoiceLabel)
 
+        // V2 TTS UI
+        layoutV2Tts       = findViewById(R.id.layoutV2Tts)
+        cardV2TtsVoice    = findViewById(R.id.cardV2TtsVoice)
+        btnV2TtsVoice1    = findViewById(R.id.btnV2TtsVoice1)
+        btnV2TtsVoice2    = findViewById(R.id.btnV2TtsVoice2)
+        btnV2TtsVoice3    = findViewById(R.id.btnV2TtsVoice3)
+        btnV2TtsVoice4    = findViewById(R.id.btnV2TtsVoice4)
+        btnV2TtsVoice5    = findViewById(R.id.btnV2TtsVoice5)
+        btnV2TtsVoice6    = findViewById(R.id.btnV2TtsVoice6)
+        tvV2TtsVoiceLabel = findViewById(R.id.tvV2TtsVoiceLabel)
+
         btnSpeak.isEnabled = false
         androidTts = TextToSpeech(this, this)
         checkPermission()
@@ -208,32 +257,37 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             v.setPadding(bars.left, bars.top, bars.right, bars.bottom); insets
         }
 
+        // STT version
         btnSttV1.setOnClickListener { selectSttVersion(SttVersion.V1) }
         btnSttV2.setOnClickListener { selectSttVersion(SttVersion.V2) }
         v2ModelButtons.forEachIndexed { i, btn -> btn.setOnClickListener { selectV2Model(i) } }
         selectSttVersion(SttVersion.V1)
         selectV2Model(1)
 
+        // Language
         btnLangEn.setOnClickListener { selectLanguage("en") }
         btnLangUr.setOnClickListener { selectLanguage("ur") }
         selectLanguage("en")
 
+        // V1 TTS engine
         btnEngineAndroid.setOnClickListener { selectEngine(TtsEngine.ANDROID) }
         btnEngineChirp.setOnClickListener   { selectEngine(TtsEngine.CHIRP_V1) }
         btnEngineVertex.setOnClickListener  { selectEngine(TtsEngine.CLOUD_V1BETA1) }
         selectEngine(TtsEngine.ANDROID)
 
+        // Urdu voice
         btnUrduFemale.setOnClickListener {
             selectedUrduVoice = "ur-PK-Standard-A"
             highlightBtn(btnUrduFemale, true); highlightBtn(btnUrduMale, false)
-            tvUrduVoiceLabel.text = "ur-PK-Standard-A (Female) via Cloud TTS v1beta1"
+            tvUrduVoiceLabel.text = "ur-PK-Standard-A (Female)"
         }
         btnUrduMale.setOnClickListener {
             selectedUrduVoice = "ur-PK-Standard-B"
             highlightBtn(btnUrduFemale, false); highlightBtn(btnUrduMale, true)
-            tvUrduVoiceLabel.text = "ur-PK-Standard-B (Male) via Cloud TTS v1beta1"
+            tvUrduVoiceLabel.text = "ur-PK-Standard-B (Male)"
         }
 
+        // V1 voice selectors
         androidVoiceButtons.forEachIndexed { i, btn -> btn.setOnClickListener { selectAndroidVoice(i) } }
         selectAndroidVoice(0)
         chirpVoiceButtons.forEachIndexed { i, btn -> btn.setOnClickListener { selectChirpVoice(i) } }
@@ -241,6 +295,11 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         v2VoiceButtons.forEachIndexed { i, btn -> btn.setOnClickListener { selectV2Voice(i) } }
         selectV2Voice(0)
 
+        // V2 TTS voice selectors
+        v2TtsVoiceButtons.forEachIndexed { i, btn -> btn.setOnClickListener { selectV2TtsVoice(i) } }
+        selectV2TtsVoice(0)
+
+        // Record button
         btnRecord.setOnTouchListener { _, event ->
             when (event.action) {
                 android.view.MotionEvent.ACTION_DOWN -> {
@@ -253,6 +312,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 else -> false
             }
         }
+
         btnSpeak.setOnClickListener {
             if (lastTranscript.isNotEmpty() && !isSpeaking) speakText(lastTranscript)
         }
@@ -268,10 +328,24 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             SttVersion.V1 -> {
                 layoutV2Models.visibility = View.GONE
                 tvSttLabel.text = "speech.googleapis.com/v1 · API key · Classic models"
+                // Show V1 TTS panel, hide V2 TTS panel
+                layoutV1Tts.visibility    = View.VISIBLE
+                layoutV2Tts.visibility    = View.GONE
+                cardV2TtsVoice.visibility = View.GONE
+                // Re-apply current V1 engine to show correct voice card
+                selectEngine(currentEngine)
             }
             SttVersion.V2 -> {
                 layoutV2Models.visibility = View.VISIBLE
                 tvSttLabel.text = "speech.googleapis.com/v2 · OAuth2 · Explicit PCM decoding"
+                // Hide V1 TTS panel, show V2 TTS panel
+                layoutV1Tts.visibility    = View.GONE
+                cardAndroidVoice.visibility = View.GONE
+                cardGeminiVoice.visibility  = View.GONE
+                cardVertexVoice.visibility  = View.GONE
+                layoutUrduVoice.visibility  = View.GONE
+                layoutV2Tts.visibility    = View.VISIBLE
+                cardV2TtsVoice.visibility = View.VISIBLE
             }
         }
     }
@@ -356,6 +430,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private suspend fun recognizeSpeechV2(base64Audio: String): String {
         return withContext(Dispatchers.IO) {
             try {
+                val location = if (selectedV2Model == "chirp") "global" else "us-central1"
                 val request = SpeechV2Request(
                     recognizer = "projects/${SpeechV2RetrofitClient.PROJECT_ID}/locations/global/recognizers/_",
                     config = SpeechV2Config(
@@ -369,7 +444,6 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     ),
                     content = base64Audio
                 )
-
                 val response = SpeechV2RetrofitClient.recognize(request, selectedV2Model)
                 if (response.isSuccessful) {
                     val results = response.body()?.results
@@ -390,7 +464,68 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
 
-    // ── TTS Engine Selection ──────────────────────────────────────────────────
+    // ── TTS Dispatch ──────────────────────────────────────────────────────────
+
+    private fun speakText(text: String) {
+        if (currentSttVersion == SttVersion.V2) {
+            // V2 mode: always use Cloud TTS v2
+            speakWithTtsV2(text)
+        } else {
+            // V1 mode: use whichever engine is selected
+            when (currentEngine) {
+                TtsEngine.ANDROID  -> speakWithAndroidTts(text)
+                TtsEngine.CHIRP_V1 -> {
+                    if (selectedLangCode == "ur-PK") {
+                        tvStatus.text = "ℹ️ Chirp3-HD is English only — using Cloud TTS v1beta1 for Urdu"
+                        speakUrduWithCloudTtsV2(text)
+                    } else speakWithChirpTts(text)
+                }
+                TtsEngine.CLOUD_V1BETA1 -> {
+                    if (selectedLangCode == "ur-PK") speakUrduWithCloudTtsV2(text)
+                    else speakWithCloudV1Beta1(text)
+                }
+            }
+        }
+    }
+
+    // ── V2 TTS (us-texttospeech.googleapis.com/v1) ── Chirp3-HD requires v1 + regional endpoint ──
+
+    private fun speakWithTtsV2(text: String) {
+        val voice = ttsV2Voices[selectedV2TtsVoiceIndex]
+        val req = TtsV2NewSynthesizeRequest(
+            TtsInput(text),
+            TtsV2NewVoice("en-US", voice.voiceId),
+            TtsV2NewAudioConfig("LINEAR16", 24000)
+        )
+        isSpeaking = true; btnSpeak.text = "⏳ Generating..."; btnSpeak.isEnabled = false
+        tvStatus.text = "🔊 TTS v2 · ${voice.displayName}..."
+        lifecycleScope.launch {
+            try {
+                val r = withContext(Dispatchers.IO) { TtsV2NewRetrofitClient.synthesize(API_KEY, req) }
+                if (r.isSuccessful && !r.body()?.audioContent.isNullOrEmpty()) {
+                    tvStatus.text = "🔊 Playing ${voice.displayName} (TTS v2)..."
+                    playPcmAudio(Base64.decode(r.body()!!.audioContent!!, Base64.DEFAULT))
+                } else {
+                    val err = r.errorBody()?.string() ?: ""
+                    Log.e("TTS_V2", "Error ${r.code()}: $err")
+                    tvStatus.text = "❌ TTS v2 error ${r.code()}"
+                    resetSpeakButton()
+                }
+            } catch (e: Exception) {
+                tvStatus.text = "❌ ${e.message}"
+                Log.e("TTS_V2", "Exception: ${e.message}")
+                resetSpeakButton()
+            }
+        }
+    }
+
+    private fun selectV2TtsVoice(index: Int) {
+        selectedV2TtsVoiceIndex = index
+        v2TtsVoiceButtons.forEachIndexed { i, btn -> highlightBtn(btn, i == index) }
+        tvV2TtsVoiceLabel.text = "Voice: ${ttsV2Voices[index].displayName} (${ttsV2Voices[index].gender}) · TTS v2"
+    }
+
+    // ── V1 TTS Engine Selection ───────────────────────────────────────────────
 
     private fun selectEngine(engine: TtsEngine) {
         currentEngine = engine
@@ -448,27 +583,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         updateUrduVoiceVisibility()
     }
 
-    // ── TTS Dispatch ──────────────────────────────────────────────────────────
-
-    private fun speakText(text: String) {
-        when (currentEngine) {
-            TtsEngine.ANDROID  -> speakWithAndroidTts(text)
-            TtsEngine.CHIRP_V1 -> {
-                // Chirp3-HD is English only — fall back to v1beta1 for Urdu
-                if (selectedLangCode == "ur-PK") {
-                    tvStatus.text = "ℹ️ Chirp3-HD is English only — using Cloud TTS v1beta1 for Urdu"
-                    speakUrduWithCloudTtsV2(text)
-                } else speakWithChirpTts(text)
-            }
-            TtsEngine.CLOUD_V1BETA1 -> {
-                // Both English and Urdu route through v1beta1
-                if (selectedLangCode == "ur-PK") speakUrduWithCloudTtsV2(text)
-                else speakWithCloudV1Beta1(text)
-            }
-        }
-    }
-
-    // ── Android TTS ───────────────────────────────────────────────────────────
+    // ── Android TTS (V1 only) ─────────────────────────────────────────────────
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
@@ -510,7 +625,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         tvAndroidVoiceLabel.text = "Voice: ${androidVoices[index].label}"
     }
 
-    // ── Chirp3-HD TTS (v1) ────────────────────────────────────────────────────
+    // ── Chirp3-HD TTS v1 (V1 only) ───────────────────────────────────────────
 
     private fun speakWithChirpTts(text: String) {
         val voice = chirpVoices[selectedChirpVoiceIndex]
@@ -538,8 +653,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         tvGeminiVoiceLabel.text = "Voice: ${chirpVoices[index].displayName} (${chirpVoices[index].gender})"
     }
 
-    // ── Urdu TTS via Cloud TTS v1beta1 ────────────────────────────────────────
-    // Uses TtsRetrofitClient.synthesizeV2() → texttospeech.googleapis.com/v1beta1
+    // ── Urdu TTS v1beta1 (V1 only) ────────────────────────────────────────────
 
     private fun speakUrduWithCloudTtsV2(text: String) {
         val req = TtsV2SynthesizeRequest(
@@ -556,7 +670,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     tvStatus.text = "🔊 Playing Urdu..."
                     playPcmAudio(Base64.decode(r.body()!!.audioContent!!, Base64.DEFAULT))
                 } else {
-                    tvStatus.text = "❌ Urdu TTS v1beta1 error ${r.code()}"
+                    tvStatus.text = "❌ Urdu TTS error ${r.code()}"
                     Log.e("URDU_TTS", "Error: ${r.errorBody()?.string()}")
                     resetSpeakButton()
                 }
@@ -568,7 +682,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
 
-    // ── Cloud TTS v1beta1 (Studio / Neural2 — English) ────────────────────────
+    // ── Cloud TTS v1beta1 English (V1 only) ───────────────────────────────────
 
     private fun speakWithCloudV1Beta1(text: String) {
         val voice = cloudV2Voices[selectedV2VoiceIndex]
