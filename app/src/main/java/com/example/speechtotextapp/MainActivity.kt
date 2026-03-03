@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var btnUrduFemale: Button
     private lateinit var btnUrduMale: Button
     private lateinit var tvUrduVoiceLabel: TextView
-    private var selectedUrduVoice = "ur-PK-Wavenet-A"
+    private var selectedUrduVoice ="ur-IN-Wavenet-A"
 
     private lateinit var btnVoice1: Button; private lateinit var btnVoice2: Button
     private lateinit var btnVoice3: Button; private lateinit var btnVoice4: Button
@@ -312,8 +312,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 SttVersion.V1 -> "⏳ Recognizing (STT V1)..."
                 SttVersion.V2 -> "⏳ Recognizing (STT V2 · $selectedV2Model)..."
             }
-            // AFTER — auto-fallback to V1 for Urdu since STT V2 doesn't support ur-PK
-            val usingV1Fallback = currentSttVersion == SttVersion.V2 && selectedLangCode == "ur-PK"
+            // AFTER — auto-fallback to V1 for Urdu since STT V2 doesn't support ur-IN
+            // FIX: Change this from "ur-PK" to "ur-IN"
+            val usingV1Fallback = currentSttVersion == SttVersion.V2 && selectedLangCode == "ur-IN"  // Changed
             if (usingV1Fallback) {
                 tvStatus.text = "ℹ️ STT V2 doesn't support Urdu — using V1..."
             }
@@ -328,7 +329,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             } else {
                 tvStatus.text = "✅ Transcript ready!"; btnSpeak.isEnabled = true
                 tvSttBadge.text = when {
-                    usingV1Fallback -> "✓ STT V1 (fallback — V2 doesn't support ur-PK)"
+                    usingV1Fallback -> "✓ STT V1 (fallback — V2 doesn't support ur-IN)"  // Updated
                     currentSttVersion == SttVersion.V1 -> "✓ STT V1 · v1/speech:recognize"
                     else -> "✓ STT V2 · $selectedV2Model model"
                 }
@@ -366,9 +367,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private suspend fun recognizeSpeechV2(base64Audio: String): String {
         return withContext(Dispatchers.IO) {
             try {
-                val langCode = if (selectedLangCode == "ur-PK") "ur-PK" else "en-US"
-                // Chirp only supports en-US — fall back to "long" for Urdu
-                val model = if (selectedLangCode == "ur-PK" && selectedV2Model == "chirp") "long"
+                val langCode = if (selectedLangCode == "ur-IN") "ur-IN" else "en-US"
+                val model = if (selectedLangCode == "ur-IN" && selectedV2Model == "chirp") "long"
                 else selectedV2Model
 
                 val request = SpeechV2Request(
@@ -445,7 +445,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private fun updateUrduVoiceVisibility() {
         layoutUrduVoice.visibility =
-            if (selectedLangCode == "ur-PK" && currentEngine != TtsEngine.ANDROID) View.VISIBLE
+            if (selectedLangCode == "ur-IN" && currentEngine != TtsEngine.ANDROID) View.VISIBLE
             else View.GONE
     }
 
@@ -472,13 +472,13 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         when (currentEngine) {
             TtsEngine.ANDROID  -> speakWithAndroidTts(text)
             TtsEngine.CHIRP_V1 -> {
-                if (selectedLangCode == "ur-PK") {
+                if (selectedLangCode == "ur-IN") {
                     tvStatus.text = "ℹ️ Chirp3-HD is English only — switching to Cloud TTS for Urdu"
                     speakUrduWithCloudTts(text)
                 } else speakWithChirpTts(text)
             }
             TtsEngine.CLOUD_V1BETA1 -> {
-                if (selectedLangCode == "ur-PK") speakUrduWithCloudTts(text)
+                if (selectedLangCode == "ur-IN") speakUrduWithCloudTts(text)
                 else speakWithCloudV1Beta1(text)
             }
         }
