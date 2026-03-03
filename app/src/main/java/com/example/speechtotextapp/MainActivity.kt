@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var btnUrduFemale: Button
     private lateinit var btnUrduMale: Button
     private lateinit var tvUrduVoiceLabel: TextView
-    private var selectedUrduVoice ="ur-IN-Wavenet-A"
+    private var selectedUrduVoice = "ur-PK-Standard-B"
 
     private lateinit var btnVoice1: Button; private lateinit var btnVoice2: Button
     private lateinit var btnVoice3: Button; private lateinit var btnVoice4: Button
@@ -155,7 +155,6 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Read API key here — getString() is safe after setContentView
         API_KEY = getString(R.string.key)
 
         btnSttV1       = findViewById(R.id.btnSttV1)
@@ -224,18 +223,15 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         btnEngineVertex.setOnClickListener  { selectEngine(TtsEngine.CLOUD_V1BETA1) }
         selectEngine(TtsEngine.ANDROID)
 
-        // In onCreate, update these lines:
         btnUrduFemale.setOnClickListener {
-            // Change from ur-PK-Wavenet-A to ur-IN-Wavenet-A
-            selectedUrduVoice = "ur-IN-Wavenet-A"  // Changed
+            selectedUrduVoice = "ur-PK-Standard-A"
             highlightBtn(btnUrduFemale, true); highlightBtn(btnUrduMale, false)
-            tvUrduVoiceLabel.text = "ur-IN-Wavenet-A (Female) via Cloud TTS"  // Updated
+            tvUrduVoiceLabel.text = "ur-PK-Standard-A (Female) via Cloud TTS v1beta1"
         }
         btnUrduMale.setOnClickListener {
-            // Change from ur-PK-Wavenet-B to ur-IN-Wavenet-B
-            selectedUrduVoice = "ur-IN-Wavenet-B"  // Changed
+            selectedUrduVoice = "ur-PK-Standard-B"
             highlightBtn(btnUrduFemale, false); highlightBtn(btnUrduMale, true)
-            tvUrduVoiceLabel.text = "ur-IN-Wavenet-B (Male) via Cloud TTS"  // Updated
+            tvUrduVoiceLabel.text = "ur-PK-Standard-B (Male) via Cloud TTS v1beta1"
         }
 
         androidVoiceButtons.forEachIndexed { i, btn -> btn.setOnClickListener { selectAndroidVoice(i) } }
@@ -312,26 +308,21 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 SttVersion.V1 -> "⏳ Recognizing (STT V1)..."
                 SttVersion.V2 -> "⏳ Recognizing (STT V2 · $selectedV2Model)..."
             }
-            // AFTER — auto-fallback to V1 for Urdu since STT V2 doesn't support ur-IN
-            // FIX: Change this from "ur-PK" to "ur-IN"
-            val usingV1Fallback = currentSttVersion == SttVersion.V2 && selectedLangCode == "ur-IN"  // Changed
-            if (usingV1Fallback) {
-                tvStatus.text = "ℹ️ STT V2 doesn't support Urdu — using V1..."
+
+            val transcript = when (currentSttVersion) {
+                SttVersion.V1 -> recognizeSpeechV1(base64Audio)
+                SttVersion.V2 -> recognizeSpeechV2(base64Audio)
             }
-            val transcript = when {
-                currentSttVersion == SttVersion.V1 || usingV1Fallback -> recognizeSpeechV1(base64Audio)
-                else -> recognizeSpeechV2(base64Audio)
-            }
+
             lastTranscript = transcript; tvResult.text = transcript
             if (transcript.startsWith("❌") || transcript.startsWith("🔇")) {
                 tvStatus.text = "⚠️ Try again."; btnSpeak.isEnabled = false
                 tvSttBadge.visibility = View.GONE
             } else {
                 tvStatus.text = "✅ Transcript ready!"; btnSpeak.isEnabled = true
-                tvSttBadge.text = when {
-                    usingV1Fallback -> "✓ STT V1 (fallback — V2 doesn't support ur-IN)"  // Updated
-                    currentSttVersion == SttVersion.V1 -> "✓ STT V1 · v1/speech:recognize"
-                    else -> "✓ STT V2 · $selectedV2Model model"
+                tvSttBadge.text = when (currentSttVersion) {
+                    SttVersion.V1 -> "✓ STT V1 · v1/speech:recognize"
+                    SttVersion.V2 -> "✓ STT V2 · $selectedV2Model model"
                 }
                 tvSttBadge.visibility = View.VISIBLE
                 speakText(transcript)
@@ -361,33 +352,25 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     // ── STT V2 ────────────────────────────────────────────────────────────────
-    // URL path  : uses locationForModel(model) — "us-central1" for chirp, "global" for others
-    // Body field: recognizer ALWAYS uses "global" (Google API quirk — don't change this)
 
     private suspend fun recognizeSpeechV2(base64Audio: String): String {
         return withContext(Dispatchers.IO) {
             try {
-                val langCode = if (selectedLangCode == "ur-IN") "ur-IN" else "en-US"
-                val model = if (selectedLangCode == "ur-IN" && selectedV2Model == "chirp") "long"
-                else selectedV2Model
-
                 val request = SpeechV2Request(
-                    // ⚠️ Body recognizer field ALWAYS "global", regardless of URL location
                     recognizer = "projects/${SpeechV2RetrofitClient.PROJECT_ID}/locations/global/recognizers/_",
                     config = SpeechV2Config(
-                        // Use explicitDecodingConfig for raw PCM from AudioRecord
                         explicitDecodingConfig = ExplicitDecodingConfig(
                             encoding = "LINEAR16",
                             sampleRateHertz = 16000,
                             audioChannelCount = 1
                         ),
-                        languageCodes = listOf(langCode),
-                        model = model
+                        languageCodes = listOf(selectedLangCode),
+                        model = selectedV2Model
                     ),
                     content = base64Audio
                 )
 
-                val response = SpeechV2RetrofitClient.recognize(request, model)
+                val response = SpeechV2RetrofitClient.recognize(request, selectedV2Model)
                 if (response.isSuccessful) {
                     val results = response.body()?.results
                     if (!results.isNullOrEmpty()) {
@@ -433,7 +416,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
             TtsEngine.CLOUD_V1BETA1 -> {
                 tvEngineLabel.text = "🚀 Cloud TTS v1beta1"
-                tvEngineDesc.text  = "texttospeech.googleapis.com/v1beta1 · Studio & Neural2"
+                tvEngineDesc.text  = "texttospeech.googleapis.com/v1beta1 · Studio & Neural2 & Urdu"
                 cardAndroidVoice.visibility = View.GONE
                 cardGeminiVoice.visibility  = View.GONE
                 cardVertexVoice.visibility  = View.VISIBLE
@@ -445,7 +428,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private fun updateUrduVoiceVisibility() {
         layoutUrduVoice.visibility =
-            if (selectedLangCode == "ur-IN" && currentEngine != TtsEngine.ANDROID) View.VISIBLE
+            if (selectedLangCode == "ur-PK" && currentEngine != TtsEngine.ANDROID) View.VISIBLE
             else View.GONE
     }
 
@@ -456,10 +439,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             tvLangLabel.text  = "Language: English (en-US)"
             highlightBtn(btnLangEn, true); highlightBtn(btnLangUr, false)
         } else {
-            // Change this from ur-PK to ur-IN
-            selectedLangCode  = "ur-IN"  // Changed from "ur-PK"
-            selectedTtsLocale = Locale("ur", "IN")  // Changed from "ur", "PK"
-            tvLangLabel.text  = "زبان: اردو (ur-IN)"  // Updated display text
+            selectedLangCode  = "ur-PK"
+            selectedTtsLocale = Locale("ur", "PK")
+            tvLangLabel.text  = "زبان: اردو (ur-PK)"
             highlightBtn(btnLangUr, true); highlightBtn(btnLangEn, false)
         }
         if (androidTtsReady) androidTts?.setLanguage(selectedTtsLocale)
@@ -472,13 +454,15 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         when (currentEngine) {
             TtsEngine.ANDROID  -> speakWithAndroidTts(text)
             TtsEngine.CHIRP_V1 -> {
-                if (selectedLangCode == "ur-IN") {
-                    tvStatus.text = "ℹ️ Chirp3-HD is English only — switching to Cloud TTS for Urdu"
-                    speakUrduWithCloudTts(text)
+                // Chirp3-HD is English only — fall back to v1beta1 for Urdu
+                if (selectedLangCode == "ur-PK") {
+                    tvStatus.text = "ℹ️ Chirp3-HD is English only — using Cloud TTS v1beta1 for Urdu"
+                    speakUrduWithCloudTtsV2(text)
                 } else speakWithChirpTts(text)
             }
             TtsEngine.CLOUD_V1BETA1 -> {
-                if (selectedLangCode == "ur-IN") speakUrduWithCloudTts(text)
+                // Both English and Urdu route through v1beta1
+                if (selectedLangCode == "ur-PK") speakUrduWithCloudTtsV2(text)
                 else speakWithCloudV1Beta1(text)
             }
         }
@@ -554,25 +538,25 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         tvGeminiVoiceLabel.text = "Voice: ${chirpVoices[index].displayName} (${chirpVoices[index].gender})"
     }
 
-    // ── Urdu TTS (Cloud v1) ───────────────────────────────────────────────────
+    // ── Urdu TTS via Cloud TTS v1beta1 ────────────────────────────────────────
+    // Uses TtsRetrofitClient.synthesizeV2() → texttospeech.googleapis.com/v1beta1
 
-    private fun speakUrduWithCloudTts(text: String) {
-        val req = TtsSynthesizeRequest(
+    private fun speakUrduWithCloudTtsV2(text: String) {
+        val req = TtsV2SynthesizeRequest(
             TtsInput(text),
-            // Change languageCode from ur-PK to ur-IN
-            TtsVoice("ur-IN", selectedUrduVoice),  // Changed
-            TtsAudioConfig("LINEAR16", 24000)
+            TtsV2Voice("ur-PK", selectedUrduVoice),
+            TtsV2AudioConfig("LINEAR16", 24000)
         )
         isSpeaking = true; btnSpeak.text = "⏳ Generating..."; btnSpeak.isEnabled = false
-        tvStatus.text = "🌐 Urdu (${selectedUrduVoice})..."
+        tvStatus.text = "🌐 Urdu v1beta1 (${selectedUrduVoice})..."
         lifecycleScope.launch {
             try {
-                val r = withContext(Dispatchers.IO) { TtsRetrofitClient.synthesize(API_KEY, req) }
+                val r = withContext(Dispatchers.IO) { TtsRetrofitClient.synthesizeV2(API_KEY, req) }
                 if (r.isSuccessful && !r.body()?.audioContent.isNullOrEmpty()) {
                     tvStatus.text = "🔊 Playing Urdu..."
                     playPcmAudio(Base64.decode(r.body()!!.audioContent!!, Base64.DEFAULT))
                 } else {
-                    tvStatus.text = "❌ Urdu TTS error ${r.code()}"
+                    tvStatus.text = "❌ Urdu TTS v1beta1 error ${r.code()}"
                     Log.e("URDU_TTS", "Error: ${r.errorBody()?.string()}")
                     resetSpeakButton()
                 }
@@ -583,7 +567,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
         }
     }
-    // ── Cloud TTS v1beta1 (Studio / Neural2) ─────────────────────────────────
+
+    // ── Cloud TTS v1beta1 (Studio / Neural2 — English) ────────────────────────
 
     private fun speakWithCloudV1Beta1(text: String) {
         val voice = cloudV2Voices[selectedV2VoiceIndex]
