@@ -12,10 +12,7 @@ import android.speech.tts.UtteranceProgressListener
 import android.util.Base64
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
@@ -25,6 +22,8 @@ import com.example.speechtotextapp.data.RetrofitClient
 import com.example.speechtotextapp.data.SpeechV2RetrofitClient
 import com.example.speechtotextapp.data.TtsRetrofitClient
 import com.example.speechtotextapp.data.TtsV2NewRetrofitClient
+import com.example.speechtotextapp.databinding.ActivityMainBinding
+
 import com.example.speechtotextapp.helper.AudioRecorder
 import com.example.speechtotextapp.model.ExplicitDecodingConfig
 import com.example.speechtotextapp.model.RecognitionAudio
@@ -52,6 +51,10 @@ enum class TtsEngine { ANDROID, CHIRP_V1, CLOUD_V1BETA1 }
 
 class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
+    // ── ViewBinding ───────────────────────────────────────────────────────────
+    private lateinit var binding: ActivityMainBinding
+
+
     private lateinit var API_KEY: String
     private val RECORD_PERMISSION_CODE = 101
 
@@ -59,66 +62,21 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var currentSttVersion = SttVersion.V1
     private var selectedV2Model   = "long"
 
-    // ── STT UI ────────────────────────────────────────────────────────────────
-    private lateinit var btnSttV1: Button
-    private lateinit var btnSttV2: Button
-    private lateinit var layoutV2Models: View
-    private lateinit var btnModelChirp: Button
-    private lateinit var btnModelLong: Button
-    private lateinit var btnModelShort: Button
-    private lateinit var btnModelLatest: Button
-    private lateinit var tvSttLabel: TextView
-    private lateinit var tvSttBadge: TextView
-    private val v2ModelButtons get() = listOf(btnModelChirp, btnModelLong, btnModelShort, btnModelLatest)
-    private val v2Models      = listOf("chirp", "long", "short", "latest_long")
-    private val v2ModelLabels = listOf("Chirp", "Long", "Short", "Latest")
+    // ── V1 voice state ────────────────────────────────────────────────────────
+    private var selectedUrduVoice           = "ur-IN-Standard-B"
+    private var selectedAndroidVoiceIndex   = 0
+    private var selectedChirpVoiceIndex     = 0
+    private var selectedV2VoiceIndex        = 0
+    private var selectedV2TtsVoiceIndex     = 0
 
-    // ── Common UI ─────────────────────────────────────────────────────────────
-    private lateinit var btnRecord: Button
-    private lateinit var btnSpeak: Button
-    private lateinit var btnLangEn: Button
-    private lateinit var btnLangUr: Button
-    private lateinit var tvStatus: TextView
-    private lateinit var tvResult: TextView
-    private lateinit var tvLangLabel: TextView
-
-    // ── V1 TTS UI ─────────────────────────────────────────────────────────────
-    private lateinit var layoutV1Tts: View
-    private lateinit var tvEngineLabel: TextView
-    private lateinit var tvEngineDesc: TextView
-    private lateinit var btnEngineAndroid: Button
-    private lateinit var btnEngineChirp: Button
-    private lateinit var btnEngineVertex: Button
-    private lateinit var cardAndroidVoice: CardView
-    private lateinit var cardGeminiVoice: CardView
-    private lateinit var cardVertexVoice: CardView
-    private lateinit var layoutUrduVoice: View
-    private lateinit var btnUrduFemale: Button
-    private lateinit var btnUrduMale: Button
-    private lateinit var tvUrduVoiceLabel: TextView
-    private var selectedUrduVoice = "ur-PK-Standard-B"
-
-    // Android voice buttons (V1 only)
-    private lateinit var btnVoice1: Button; private lateinit var btnVoice2: Button
-    private lateinit var btnVoice3: Button; private lateinit var btnVoice4: Button
-    private lateinit var btnVoice5: Button; private lateinit var btnVoice6: Button
-    private val androidVoiceButtons get() = listOf(btnVoice1, btnVoice2, btnVoice3, btnVoice4, btnVoice5, btnVoice6)
-    private lateinit var tvAndroidVoiceLabel: TextView
+    // ── Voice data models ─────────────────────────────────────────────────────
     data class AndroidVoiceProfile(val label: String, val pitch: Float, val speed: Float)
     private val androidVoices = listOf(
-        AndroidVoiceProfile("Female 1", 1.2f, 1.0f), AndroidVoiceProfile("Male 1", 0.8f, 0.95f),
-        AndroidVoiceProfile("Female 2", 1.5f, 1.1f), AndroidVoiceProfile("Male 2", 0.6f, 0.85f),
-        AndroidVoiceProfile("Child",    1.8f, 1.2f), AndroidVoiceProfile("Robot",  0.5f, 0.7f)
+        AndroidVoiceProfile("Female 1", 1.2f, 1.0f), AndroidVoiceProfile("Male 1",   0.8f, 0.95f),
+        AndroidVoiceProfile("Female 2", 1.5f, 1.1f), AndroidVoiceProfile("Male 2",   0.6f, 0.85f),
+        AndroidVoiceProfile("Child",    1.8f, 1.2f), AndroidVoiceProfile("Robot",    0.5f, 0.7f)
     )
-    private var selectedAndroidVoiceIndex = 0
 
-    // Chirp3-HD buttons (V1 only)
-    private lateinit var btnVAchernar: Button; private lateinit var btnVAoede: Button
-    private lateinit var btnVKore: Button;     private lateinit var btnVZephyr: Button
-    private lateinit var btnVCharon: Button;   private lateinit var btnVPuck: Button
-    private lateinit var btnVFenrir: Button;   private lateinit var btnVOrus: Button
-    private val chirpVoiceButtons get() = listOf(btnVAchernar, btnVAoede, btnVKore, btnVZephyr, btnVCharon, btnVPuck, btnVFenrir, btnVOrus)
-    private lateinit var tvGeminiVoiceLabel: TextView
     data class ChirpVoice(val displayName: String, val gender: String, val voiceId: String)
     private val chirpVoices = listOf(
         ChirpVoice("Aoede",  "Female", "en-US-Chirp3-HD-Aoede"),
@@ -130,14 +88,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         ChirpVoice("Orus",   "Male",   "en-US-Chirp3-HD-Orus"),
         ChirpVoice("Puck",   "Male",   "en-US-Chirp3-HD-Puck")
     )
-    private var selectedChirpVoiceIndex = 0
 
-    // Cloud v1beta1 buttons (V1 only)
-    private lateinit var btnVertexVoice1: Button; private lateinit var btnVertexVoice2: Button
-    private lateinit var btnVertexVoice3: Button; private lateinit var btnVertexVoice4: Button
-    private lateinit var btnVertexVoice5: Button; private lateinit var btnVertexVoice6: Button
-    private val v2VoiceButtons get() = listOf(btnVertexVoice1, btnVertexVoice2, btnVertexVoice3, btnVertexVoice4, btnVertexVoice5, btnVertexVoice6)
-    private lateinit var tvVertexVoiceLabel: TextView
     data class CloudV2Voice(val displayName: String, val gender: String, val voiceId: String)
     private val cloudV2Voices = listOf(
         CloudV2Voice("Studio-O",  "Female", "en-US-Studio-O"),
@@ -147,16 +98,6 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         CloudV2Voice("Neural2-F", "Female", "en-US-Neural2-F"),
         CloudV2Voice("Neural2-J", "Male",   "en-US-Neural2-J")
     )
-    private var selectedV2VoiceIndex = 0
-
-    // ── V2 TTS UI ─────────────────────────────────────────────────────────────
-    private lateinit var layoutV2Tts: View
-    private lateinit var cardV2TtsVoice: CardView
-    private lateinit var btnV2TtsVoice1: Button; private lateinit var btnV2TtsVoice2: Button
-    private lateinit var btnV2TtsVoice3: Button; private lateinit var btnV2TtsVoice4: Button
-    private lateinit var btnV2TtsVoice5: Button; private lateinit var btnV2TtsVoice6: Button
-    private val v2TtsVoiceButtons get() = listOf(btnV2TtsVoice1, btnV2TtsVoice2, btnV2TtsVoice3, btnV2TtsVoice4, btnV2TtsVoice5, btnV2TtsVoice6)
-    private lateinit var tvV2TtsVoiceLabel: TextView
 
     data class TtsV2Voice2(val displayName: String, val gender: String, val voiceId: String)
     private val ttsV2Voices = listOf(
@@ -167,124 +108,82 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         TtsV2Voice2("Fenrir", "Male",   "en-US-Chirp3-HD-Fenrir"),
         TtsV2Voice2("Puck",   "Male",   "en-US-Chirp3-HD-Puck")
     )
-    private var selectedV2TtsVoiceIndex = 0
+
+    // ── Derived button lists (using binding) ──────────────────────────────────
+    private val v2ModelButtons      get() = with(binding) { listOf(btnModelChirp, btnModelLong, btnModelShort, btnModelLatest) }
+    private val v2Models                  = listOf("chirp", "long", "short", "latest_long")
+    private val v2ModelLabels             = listOf("Chirp", "Long", "Short", "Latest")
+    private val androidVoiceButtons get() = with(binding) { listOf(btnVoice1, btnVoice2, btnVoice3, btnVoice4, btnVoice5, btnVoice6) }
+    private val chirpVoiceButtons   get() = with(binding) { listOf(btnVAchernar, btnVAoede, btnVKore, btnVZephyr, btnVCharon, btnVPuck, btnVFenrir, btnVOrus) }
+    private val v2VoiceButtons      get() = with(binding) { listOf(btnVertexVoice1, btnVertexVoice2, btnVertexVoice3, btnVertexVoice4, btnVertexVoice5, btnVertexVoice6) }
+    private val v2TtsVoiceButtons   get() = with(binding) { listOf(btnV2TtsVoice1, btnV2TtsVoice2, btnV2TtsVoice3, btnV2TtsVoice4, btnV2TtsVoice5, btnV2TtsVoice6) }
 
     // ── Playback / misc state ─────────────────────────────────────────────────
     private var audioTrack: AudioTrack? = null
-    private var isSpeaking = false
+    private var isSpeaking              = false
     private var androidTts: TextToSpeech? = null
-    private var androidTtsReady = false
-
-    private val audioRecorder     = AudioRecorder()
-    private var lastTranscript    = ""
-    private var didStartRecording = false
-    private var selectedLangCode  = "en-US"
+    private var androidTtsReady         = false
+    private val audioRecorder           = AudioRecorder()
+    private var lastTranscript          = ""
+    private var didStartRecording       = false
+    private var selectedLangCode        = "en-US"
     private var selectedTtsLocale: Locale = Locale.US
-    private var currentEngine     = TtsEngine.ANDROID
+    private var currentEngine           = TtsEngine.ANDROID
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Lifecycle
+    // ─────────────────────────────────────────────────────────────────────────
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+
+        // ── Inflate with ViewBinding (replaces setContentView + all findViewById)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         API_KEY = getString(R.string.key)
 
-        // STT UI
-        btnSttV1       = findViewById(R.id.btnSttV1)
-        btnSttV2       = findViewById(R.id.btnSttV2)
-        layoutV2Models = findViewById(R.id.layoutV2Models)
-        btnModelChirp  = findViewById(R.id.btnModelChirp)
-        btnModelLong   = findViewById(R.id.btnModelLong)
-        btnModelShort  = findViewById(R.id.btnModelShort)
-        btnModelLatest = findViewById(R.id.btnModelLatest)
-        tvSttLabel     = findViewById(R.id.tvSttLabel)
-        tvSttBadge     = findViewById(R.id.tvSttBadge)
-
-        // Common UI
-        btnRecord   = findViewById(R.id.btnRecord)
-        btnSpeak    = findViewById(R.id.btnSpeak)
-        btnLangEn   = findViewById(R.id.btnLangEn)
-        btnLangUr   = findViewById(R.id.btnLangUr)
-        tvStatus    = findViewById(R.id.tvStatus)
-        tvResult    = findViewById(R.id.tvResult)
-        tvLangLabel = findViewById(R.id.tvLangLabel)
-
-        // V1 TTS UI
-        layoutV1Tts      = findViewById(R.id.layoutV1Tts)
-        tvEngineLabel    = findViewById(R.id.tvEngineLabel)
-        tvEngineDesc     = findViewById(R.id.tvEngineDesc)
-        btnEngineAndroid = findViewById(R.id.btnEngineAndroid)
-        btnEngineChirp   = findViewById(R.id.btnEngineChirp)
-        btnEngineVertex  = findViewById(R.id.btnEngineVertex)
-        cardAndroidVoice = findViewById(R.id.cardAndroidVoice)
-        cardGeminiVoice  = findViewById(R.id.cardGeminiVoice)
-        cardVertexVoice  = findViewById(R.id.cardVertexVoice)
-        layoutUrduVoice  = findViewById(R.id.layoutUrduVoice)
-        btnUrduFemale    = findViewById(R.id.btnUrduFemale)
-        btnUrduMale      = findViewById(R.id.btnUrduMale)
-        tvUrduVoiceLabel = findViewById(R.id.tvUrduVoiceLabel)
-        btnVoice1 = findViewById(R.id.btnVoice1); btnVoice2 = findViewById(R.id.btnVoice2)
-        btnVoice3 = findViewById(R.id.btnVoice3); btnVoice4 = findViewById(R.id.btnVoice4)
-        btnVoice5 = findViewById(R.id.btnVoice5); btnVoice6 = findViewById(R.id.btnVoice6)
-        tvAndroidVoiceLabel = findViewById(R.id.tvAndroidVoiceLabel)
-        btnVAchernar = findViewById(R.id.btnVAchernar); btnVAoede  = findViewById(R.id.btnVAoede)
-        btnVKore     = findViewById(R.id.btnVKore);     btnVZephyr = findViewById(R.id.btnVZephyr)
-        btnVCharon   = findViewById(R.id.btnVCharon);   btnVPuck   = findViewById(R.id.btnVPuck)
-        btnVFenrir   = findViewById(R.id.btnVFenrir);   btnVOrus   = findViewById(R.id.btnVOrus)
-        tvGeminiVoiceLabel = findViewById(R.id.tvGeminiVoiceLabel)
-        btnVertexVoice1 = findViewById(R.id.btnVertexVoice1); btnVertexVoice2 = findViewById(R.id.btnVertexVoice2)
-        btnVertexVoice3 = findViewById(R.id.btnVertexVoice3); btnVertexVoice4 = findViewById(R.id.btnVertexVoice4)
-        btnVertexVoice5 = findViewById(R.id.btnVertexVoice5); btnVertexVoice6 = findViewById(R.id.btnVertexVoice6)
-        tvVertexVoiceLabel = findViewById(R.id.tvVertexVoiceLabel)
-
-        // V2 TTS UI
-        layoutV2Tts       = findViewById(R.id.layoutV2Tts)
-        cardV2TtsVoice    = findViewById(R.id.cardV2TtsVoice)
-        btnV2TtsVoice1    = findViewById(R.id.btnV2TtsVoice1)
-        btnV2TtsVoice2    = findViewById(R.id.btnV2TtsVoice2)
-        btnV2TtsVoice3    = findViewById(R.id.btnV2TtsVoice3)
-        btnV2TtsVoice4    = findViewById(R.id.btnV2TtsVoice4)
-        btnV2TtsVoice5    = findViewById(R.id.btnV2TtsVoice5)
-        btnV2TtsVoice6    = findViewById(R.id.btnV2TtsVoice6)
-        tvV2TtsVoiceLabel = findViewById(R.id.tvV2TtsVoiceLabel)
-
-        btnSpeak.isEnabled = false
+        binding.btnSpeak.isEnabled = false
         androidTts = TextToSpeech(this, this)
         checkPermission()
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(bars.left, bars.top, bars.right, bars.bottom); insets
+            v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+            insets
         }
 
         // STT version
-        btnSttV1.setOnClickListener { selectSttVersion(SttVersion.V1) }
-        btnSttV2.setOnClickListener { selectSttVersion(SttVersion.V2) }
+        binding.btnSttV1.setOnClickListener { selectSttVersion(SttVersion.V1) }
+        binding.btnSttV2.setOnClickListener { selectSttVersion(SttVersion.V2) }
         v2ModelButtons.forEachIndexed { i, btn -> btn.setOnClickListener { selectV2Model(i) } }
         selectSttVersion(SttVersion.V1)
         selectV2Model(1)
 
         // Language
-        btnLangEn.setOnClickListener { selectLanguage("en") }
-        btnLangUr.setOnClickListener { selectLanguage("ur") }
+        binding.btnLangEn.setOnClickListener { selectLanguage("en") }
+        binding.btnLangUr.setOnClickListener { selectLanguage("ur") }
         selectLanguage("en")
 
         // V1 TTS engine
-        btnEngineAndroid.setOnClickListener { selectEngine(TtsEngine.ANDROID) }
-        btnEngineChirp.setOnClickListener   { selectEngine(TtsEngine.CHIRP_V1) }
-        btnEngineVertex.setOnClickListener  { selectEngine(TtsEngine.CLOUD_V1BETA1) }
+        binding.btnEngineAndroid.setOnClickListener { selectEngine(TtsEngine.ANDROID) }
+        binding.btnEngineChirp.setOnClickListener   { selectEngine(TtsEngine.CHIRP_V1) }
+        binding.btnEngineVertex.setOnClickListener  { selectEngine(TtsEngine.CLOUD_V1BETA1) }
         selectEngine(TtsEngine.ANDROID)
 
         // Urdu voice
-        btnUrduFemale.setOnClickListener {
-            selectedUrduVoice = "ur-PK-Standard-A"
-            highlightBtn(btnUrduFemale, true); highlightBtn(btnUrduMale, false)
-            tvUrduVoiceLabel.text = "ur-PK-Standard-A (Female)"
+        binding.btnUrduFemale.setOnClickListener {
+            selectedUrduVoice = "ur-IN-Standard-A"
+            highlightBtn(binding.btnUrduFemale, true)
+            highlightBtn(binding.btnUrduMale, false)
+            binding.tvUrduVoiceLabel.text = "ur-IN-Standard-A (Female)"
         }
-        btnUrduMale.setOnClickListener {
-            selectedUrduVoice = "ur-PK-Standard-B"
-            highlightBtn(btnUrduFemale, false); highlightBtn(btnUrduMale, true)
-            tvUrduVoiceLabel.text = "ur-PK-Standard-B (Male)"
+        binding.btnUrduMale.setOnClickListener {
+            selectedUrduVoice = "ur-IN-Standard-B"
+            highlightBtn(binding.btnUrduFemale, false)
+            highlightBtn(binding.btnUrduMale, true)
+            binding.tvUrduVoiceLabel.text = "ur-IN-Standard-B (Male)"
         }
 
         // V1 voice selectors
@@ -300,12 +199,15 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         selectV2TtsVoice(0)
 
         // Record button
-        btnRecord.setOnTouchListener { _, event ->
+        binding.btnRecord.setOnTouchListener { _, event ->
             when (event.action) {
                 android.view.MotionEvent.ACTION_DOWN -> {
                     if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
                         == PackageManager.PERMISSION_GRANTED) startRecording()
-                    else { checkPermission(); tvStatus.text = "⚠️ Microphone permission needed" }
+                    else {
+                        checkPermission()
+                        binding.tvStatus.text = "⚠️ Microphone permission needed"
+                    }
                     true
                 }
                 android.view.MotionEvent.ACTION_UP -> { stopAndRecognize(); true }
@@ -313,39 +215,38 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
         }
 
-        btnSpeak.setOnClickListener {
+        binding.btnSpeak.setOnClickListener {
             if (lastTranscript.isNotEmpty() && !isSpeaking) speakText(lastTranscript)
         }
     }
 
-    // ── STT Version Selection ─────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // STT Version Selection
+    // ─────────────────────────────────────────────────────────────────────────
 
     private fun selectSttVersion(version: SttVersion) {
         currentSttVersion = version
-        highlightBtn(btnSttV1, version == SttVersion.V1)
-        highlightBtn(btnSttV2, version == SttVersion.V2)
+        highlightBtn(binding.btnSttV1, version == SttVersion.V1)
+        highlightBtn(binding.btnSttV2, version == SttVersion.V2)
         when (version) {
             SttVersion.V1 -> {
-                layoutV2Models.visibility = View.GONE
-                tvSttLabel.text = "speech.googleapis.com/v1 · API key · Classic models"
-                // Show V1 TTS panel, hide V2 TTS panel
-                layoutV1Tts.visibility    = View.VISIBLE
-                layoutV2Tts.visibility    = View.GONE
-                cardV2TtsVoice.visibility = View.GONE
-                // Re-apply current V1 engine to show correct voice card
+                binding.layoutV2Models.visibility = View.GONE
+                binding.tvSttLabel.text = "speech.googleapis.com/v1 · API key · Classic models"
+                binding.layoutV1Tts.visibility    = View.VISIBLE
+                binding.layoutV2Tts.visibility    = View.GONE
+                binding.cardV2TtsVoice.visibility = View.GONE
                 selectEngine(currentEngine)
             }
             SttVersion.V2 -> {
-                layoutV2Models.visibility = View.VISIBLE
-                tvSttLabel.text = "speech.googleapis.com/v2 · OAuth2 · Explicit PCM decoding"
-                // Hide V1 TTS panel, show V2 TTS panel
-                layoutV1Tts.visibility    = View.GONE
-                cardAndroidVoice.visibility = View.GONE
-                cardGeminiVoice.visibility  = View.GONE
-                cardVertexVoice.visibility  = View.GONE
-                layoutUrduVoice.visibility  = View.GONE
-                layoutV2Tts.visibility    = View.VISIBLE
-                cardV2TtsVoice.visibility = View.VISIBLE
+                binding.layoutV2Models.visibility = View.VISIBLE
+                binding.tvSttLabel.text = "speech.googleapis.com/v2 · OAuth2 · Explicit PCM decoding"
+                binding.layoutV1Tts.visibility      = View.GONE
+                binding.cardAndroidVoice.visibility = View.GONE
+                binding.cardGeminiVoice.visibility  = View.GONE
+                binding.cardVertexVoice.visibility  = View.GONE
+                binding.layoutUrduVoice.visibility  = View.GONE
+                binding.layoutV2Tts.visibility      = View.VISIBLE
+                binding.cardV2TtsVoice.visibility   = View.VISIBLE
             }
         }
     }
@@ -354,31 +255,36 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         selectedV2Model = v2Models[index]
         v2ModelButtons.forEachIndexed { i, btn -> highlightBtn(btn, i == index) }
         if (currentSttVersion == SttVersion.V2)
-            tvSttLabel.text = "speech.googleapis.com/v2 · Model: ${v2ModelLabels[index]}"
+            binding.tvSttLabel.text = "speech.googleapis.com/v2 · Model: ${v2ModelLabels[index]}"
     }
 
-    // ── Recording ─────────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // Recording
+    // ─────────────────────────────────────────────────────────────────────────
 
     private fun startRecording() {
         stopPlayback()
-        btnSpeak.isEnabled = false
-        tvSttBadge.visibility = View.GONE
-        tvStatus.text = "🔴 Recording... (release to stop)"
-        tvResult.text = ""; lastTranscript = ""; didStartRecording = true
+        binding.btnSpeak.isEnabled    = false
+        binding.tvSttBadge.visibility = View.GONE
+        binding.tvStatus.text         = "🔴 Recording... (release to stop)"
+        binding.tvResult.text         = ""
+        lastTranscript                = ""
+        didStartRecording             = true
         audioRecorder.startRecording()
     }
 
     private fun stopAndRecognize() {
         if (!didStartRecording) return
-        didStartRecording = false
-        tvStatus.text = "⏳ Processing audio..."
+        didStartRecording     = false
+        binding.tvStatus.text = "⏳ Processing audio..."
         lifecycleScope.launch {
             val base64Audio = withContext(Dispatchers.IO) { audioRecorder.stopRecording() }
             if (base64Audio.isEmpty()) {
-                tvStatus.text = "⚠️ No audio captured. Hold the button longer!"
-                btnSpeak.isEnabled = false; return@launch
+                binding.tvStatus.text      = "⚠️ No audio captured. Hold the button longer!"
+                binding.btnSpeak.isEnabled = false
+                return@launch
             }
-            tvStatus.text = when (currentSttVersion) {
+            binding.tvStatus.text = when (currentSttVersion) {
                 SttVersion.V1 -> "⏳ Recognizing (STT V1)..."
                 SttVersion.V2 -> "⏳ Recognizing (STT V2 · $selectedV2Model)..."
             }
@@ -388,23 +294,29 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 SttVersion.V2 -> recognizeSpeechV2(base64Audio)
             }
 
-            lastTranscript = transcript; tvResult.text = transcript
+            lastTranscript        = transcript
+            binding.tvResult.text = transcript
+
             if (transcript.startsWith("❌") || transcript.startsWith("🔇")) {
-                tvStatus.text = "⚠️ Try again."; btnSpeak.isEnabled = false
-                tvSttBadge.visibility = View.GONE
+                binding.tvStatus.text      = "⚠️ Try again."
+                binding.btnSpeak.isEnabled = false
+                binding.tvSttBadge.visibility = View.GONE
             } else {
-                tvStatus.text = "✅ Transcript ready!"; btnSpeak.isEnabled = true
-                tvSttBadge.text = when (currentSttVersion) {
+                binding.tvStatus.text      = "✅ Transcript ready!"
+                binding.btnSpeak.isEnabled = true
+                binding.tvSttBadge.text = when (currentSttVersion) {
                     SttVersion.V1 -> "✓ STT V1 · v1/speech:recognize"
                     SttVersion.V2 -> "✓ STT V2 · $selectedV2Model model"
                 }
-                tvSttBadge.visibility = View.VISIBLE
+                binding.tvSttBadge.visibility = View.VISIBLE
                 speakText(transcript)
             }
         }
     }
 
-    // ── STT V1 ────────────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // STT V1
+    // ─────────────────────────────────────────────────────────────────────────
 
     private suspend fun recognizeSpeechV1(base64Audio: String): String {
         return withContext(Dispatchers.IO) {
@@ -425,22 +337,23 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
 
-    // ── STT V2 ────────────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // STT V2
+    // ─────────────────────────────────────────────────────────────────────────
 
     private suspend fun recognizeSpeechV2(base64Audio: String): String {
         return withContext(Dispatchers.IO) {
             try {
-                val location = if (selectedV2Model == "chirp") "global" else "us-central1"
                 val request = SpeechV2Request(
                     recognizer = "projects/${SpeechV2RetrofitClient.PROJECT_ID}/locations/global/recognizers/_",
                     config = SpeechV2Config(
                         explicitDecodingConfig = ExplicitDecodingConfig(
-                            encoding = "LINEAR16",
-                            sampleRateHertz = 16000,
-                            audioChannelCount = 1
+                            encoding          = "LINEAR16",
+                            sampleRateHertz   = 16000,
+                            au dioChannelCount = 1
                         ),
                         languageCodes = listOf(selectedLangCode),
-                        model = selectedV2Model
+                        model         = selectedV2Model
                     ),
                     content = base64Audio
                 )
@@ -464,31 +377,33 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
 
-    // ── TTS Dispatch ──────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // TTS Dispatch
+    // ─────────────────────────────────────────────────────────────────────────
 
     private fun speakText(text: String) {
         if (currentSttVersion == SttVersion.V2) {
-            // V2 mode: always use Cloud TTS v2
             speakWithTtsV2(text)
         } else {
-            // V1 mode: use whichever engine is selected
             when (currentEngine) {
                 TtsEngine.ANDROID  -> speakWithAndroidTts(text)
                 TtsEngine.CHIRP_V1 -> {
-                    if (selectedLangCode == "ur-PK") {
-                        tvStatus.text = "ℹ️ Chirp3-HD is English only — using Cloud TTS v1beta1 for Urdu"
+                    if (selectedLangCode == "ur-IN") {
+                        binding.tvStatus.text = "ℹ️ Chirp3-HD is English only — using Cloud TTS v1beta1 for Urdu"
                         speakUrduWithCloudTtsV2(text)
                     } else speakWithChirpTts(text)
                 }
                 TtsEngine.CLOUD_V1BETA1 -> {
-                    if (selectedLangCode == "ur-PK") speakUrduWithCloudTtsV2(text)
+                    if (selectedLangCode == "ur-IN") speakUrduWithCloudTtsV2(text)
                     else speakWithCloudV1Beta1(text)
                 }
             }
         }
     }
 
-    // ── V2 TTS (us-texttospeech.googleapis.com/v1) ── Chirp3-HD requires v1 + regional endpoint ──
+    // ─────────────────────────────────────────────────────────────────────────
+    // V2 TTS
+    // ─────────────────────────────────────────────────────────────────────────
 
     private fun speakWithTtsV2(text: String) {
         val voice = ttsV2Voices[selectedV2TtsVoiceIndex]
@@ -497,22 +412,25 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             TtsV2NewVoice("en-US", voice.voiceId),
             TtsV2NewAudioConfig("LINEAR16", 24000)
         )
-        isSpeaking = true; btnSpeak.text = "⏳ Generating..."; btnSpeak.isEnabled = false
-        tvStatus.text = "🔊 TTS v2 · ${voice.displayName}..."
+        isSpeaking = true
+        binding.btnSpeak.text      = "⏳ Generating..."
+        binding.btnSpeak.isEnabled = false
+        binding.tvStatus.text      = "🔊 TTS v2 · ${voice.displayName}..."
+
         lifecycleScope.launch {
             try {
                 val r = withContext(Dispatchers.IO) { TtsV2NewRetrofitClient.synthesize(API_KEY, req) }
                 if (r.isSuccessful && !r.body()?.audioContent.isNullOrEmpty()) {
-                    tvStatus.text = "🔊 Playing ${voice.displayName} (TTS v2)..."
+                    binding.tvStatus.text = "🔊 Playing ${voice.displayName} (TTS v2)..."
                     playPcmAudio(Base64.decode(r.body()!!.audioContent!!, Base64.DEFAULT))
                 } else {
                     val err = r.errorBody()?.string() ?: ""
                     Log.e("TTS_V2", "Error ${r.code()}: $err")
-                    tvStatus.text = "❌ TTS v2 error ${r.code()}"
+                    binding.tvStatus.text = "❌ TTS v2 error ${r.code()}"
                     resetSpeakButton()
                 }
             } catch (e: Exception) {
-                tvStatus.text = "❌ ${e.message}"
+                binding.tvStatus.text = "❌ ${e.message}"
                 Log.e("TTS_V2", "Exception: ${e.message}")
                 resetSpeakButton()
             }
@@ -522,68 +440,75 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private fun selectV2TtsVoice(index: Int) {
         selectedV2TtsVoiceIndex = index
         v2TtsVoiceButtons.forEachIndexed { i, btn -> highlightBtn(btn, i == index) }
-        tvV2TtsVoiceLabel.text = "Voice: ${ttsV2Voices[index].displayName} (${ttsV2Voices[index].gender}) · TTS v2"
+        binding.tvV2TtsVoiceLabel.text =
+            "Voice: ${ttsV2Voices[index].displayName} (${ttsV2Voices[index].gender}) · TTS v2"
     }
 
-    // ── V1 TTS Engine Selection ───────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // V1 TTS Engine Selection
+    // ─────────────────────────────────────────────────────────────────────────
 
     private fun selectEngine(engine: TtsEngine) {
         currentEngine = engine
-        highlightBtn(btnEngineAndroid, engine == TtsEngine.ANDROID)
-        highlightBtn(btnEngineChirp,   engine == TtsEngine.CHIRP_V1)
-        highlightBtn(btnEngineVertex,  engine == TtsEngine.CLOUD_V1BETA1)
+        highlightBtn(binding.btnEngineAndroid, engine == TtsEngine.ANDROID)
+        highlightBtn(binding.btnEngineChirp,   engine == TtsEngine.CHIRP_V1)
+        highlightBtn(binding.btnEngineVertex,  engine == TtsEngine.CLOUD_V1BETA1)
         when (engine) {
             TtsEngine.ANDROID -> {
-                tvEngineLabel.text = "📱 Android Built-in"
-                tvEngineDesc.text  = "Device voice · works offline"
-                cardAndroidVoice.visibility = View.VISIBLE
-                cardGeminiVoice.visibility  = View.GONE
-                cardVertexVoice.visibility  = View.GONE
-                btnSpeak.text = "🔊 Play Transcript"
+                binding.tvEngineLabel.text          = "📱 Android Built-in"
+                binding.tvEngineDesc.text           = "Device voice · works offline"
+                binding.cardAndroidVoice.visibility = View.VISIBLE
+                binding.cardGeminiVoice.visibility  = View.GONE
+                binding.cardVertexVoice.visibility  = View.GONE
+                binding.btnSpeak.text               = "🔊 Play Transcript"
             }
             TtsEngine.CHIRP_V1 -> {
-                tvEngineLabel.text = "✨ Chirp3-HD (TTS v1)"
-                tvEngineDesc.text  = "texttospeech.googleapis.com/v1"
-                cardAndroidVoice.visibility = View.GONE
-                cardGeminiVoice.visibility  = View.VISIBLE
-                cardVertexVoice.visibility  = View.GONE
-                btnSpeak.text = "🔊 Play with Chirp3-HD"
+                binding.tvEngineLabel.text          = "✨ Chirp3-HD (TTS v1)"
+                binding.tvEngineDesc.text           = "texttospeech.googleapis.com/v1"
+                binding.cardAndroidVoice.visibility = View.GONE
+                binding.cardGeminiVoice.visibility  = View.VISIBLE
+                binding.cardVertexVoice.visibility  = View.GONE
+                binding.btnSpeak.text               = "🔊 Play with Chirp3-HD"
             }
             TtsEngine.CLOUD_V1BETA1 -> {
-                tvEngineLabel.text = "🚀 Cloud TTS v1beta1"
-                tvEngineDesc.text  = "texttospeech.googleapis.com/v1beta1 · Studio & Neural2 & Urdu"
-                cardAndroidVoice.visibility = View.GONE
-                cardGeminiVoice.visibility  = View.GONE
-                cardVertexVoice.visibility  = View.VISIBLE
-                btnSpeak.text = "🔊 Play with Cloud TTS"
+                binding.tvEngineLabel.text          = "🚀 Cloud TTS v1beta1"
+                binding.tvEngineDesc.text           = "texttospeech.googleapis.com/v1beta1 · Studio & Neural2 & Urdu"
+                binding.cardAndroidVoice.visibility = View.GONE
+                binding.cardGeminiVoice.visibility  = View.GONE
+                binding.cardVertexVoice.visibility  = View.VISIBLE
+                binding.btnSpeak.text               = "🔊 Play with Cloud TTS"
             }
         }
         updateUrduVoiceVisibility()
     }
 
     private fun updateUrduVoiceVisibility() {
-        layoutUrduVoice.visibility =
-            if (selectedLangCode == "ur-PK" && currentEngine != TtsEngine.ANDROID) View.VISIBLE
+        binding.layoutUrduVoice.visibility =
+            if (selectedLangCode == "ur-IN" && currentEngine != TtsEngine.ANDROID) View.VISIBLE
             else View.GONE
     }
 
     private fun selectLanguage(lang: String) {
         if (lang == "en") {
-            selectedLangCode  = "en-US"
-            selectedTtsLocale = Locale.US
-            tvLangLabel.text  = "Language: English (en-US)"
-            highlightBtn(btnLangEn, true); highlightBtn(btnLangUr, false)
+            selectedLangCode          = "en-US"
+            selectedTtsLocale         = Locale.US
+            binding.tvLangLabel.text  = "Language: English (en-US)"
+            highlightBtn(binding.btnLangEn, true)
+            highlightBtn(binding.btnLangUr, false)
         } else {
-            selectedLangCode  = "ur-PK"
-            selectedTtsLocale = Locale("ur", "PK")
-            tvLangLabel.text  = "زبان: اردو (ur-PK)"
-            highlightBtn(btnLangUr, true); highlightBtn(btnLangEn, false)
+            selectedLangCode          = "ur-IN"
+            selectedTtsLocale         = Locale("ur", "PK")
+            binding.tvLangLabel.text  = "زبان: اردو (ur-PK)"
+            highlightBtn(binding.btnLangUr, true)
+            highlightBtn(binding.btnLangEn, false)
         }
         if (androidTtsReady) androidTts?.setLanguage(selectedTtsLocale)
         updateUrduVoiceVisibility()
     }
 
-    // ── Android TTS (V1 only) ─────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // Android TTS (V1 only)
+    // ─────────────────────────────────────────────────────────────────────────
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
@@ -593,15 +518,21 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             if (androidTtsReady) {
                 androidTts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
                     override fun onStart(id: String?) = runOnUiThread {
-                        isSpeaking = true; btnSpeak.text = "⏸ Speaking..."; btnSpeak.isEnabled = false
+                        isSpeaking = true
+                        binding.btnSpeak.text      = "⏸ Speaking..."
+                        binding.btnSpeak.isEnabled = false
                     }
                     override fun onDone(id: String?) = runOnUiThread {
-                        isSpeaking = false; btnSpeak.text = "🔊 Play Again"
-                        btnSpeak.isEnabled = true; tvStatus.text = "✅ Done!"
+                        isSpeaking = false
+                        binding.btnSpeak.text      = "🔊 Play Again"
+                        binding.btnSpeak.isEnabled = true
+                        binding.tvStatus.text      = "✅ Done!"
                     }
                     @Deprecated("Deprecated in Java")
                     override fun onError(id: String?) = runOnUiThread {
-                        isSpeaking = false; btnSpeak.isEnabled = true; btnSpeak.text = "🔊 Play Again"
+                        isSpeaking = false
+                        binding.btnSpeak.isEnabled = true
+                        binding.btnSpeak.text      = "🔊 Play Again"
                     }
                 })
             }
@@ -609,23 +540,25 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun speakWithAndroidTts(text: String) {
-        if (!androidTtsReady) { tvStatus.text = "⚠️ Android TTS not ready"; return }
+        if (!androidTtsReady) { binding.tvStatus.text = "⚠️ Android TTS not ready"; return }
         val voice = androidVoices[selectedAndroidVoiceIndex]
         androidTts?.setLanguage(selectedTtsLocale)
         androidTts?.setPitch(voice.pitch)
         androidTts?.setSpeechRate(voice.speed)
         androidTts?.stop()
         androidTts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "UID")
-        tvStatus.text = "🔊 Playing ${voice.label}..."
+        binding.tvStatus.text = "🔊 Playing ${voice.label}..."
     }
 
     private fun selectAndroidVoice(index: Int) {
         selectedAndroidVoiceIndex = index
         androidVoiceButtons.forEachIndexed { i, btn -> highlightBtn(btn, i == index) }
-        tvAndroidVoiceLabel.text = "Voice: ${androidVoices[index].label}"
+        binding.tvAndroidVoiceLabel.text = "Voice: ${androidVoices[index].label}"
     }
 
-    // ── Chirp3-HD TTS v1 (V1 only) ───────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // Chirp3-HD TTS v1 (V1 only)
+    // ─────────────────────────────────────────────────────────────────────────
 
     private fun speakWithChirpTts(text: String) {
         val voice = chirpVoices[selectedChirpVoiceIndex]
@@ -634,55 +567,72 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             TtsVoice("en-US", voice.voiceId),
             TtsAudioConfig("LINEAR16", 24000)
         )
-        isSpeaking = true; btnSpeak.text = "⏳ Generating..."; btnSpeak.isEnabled = false
-        tvStatus.text = "✨ ${voice.displayName}..."
+        isSpeaking = true
+        binding.btnSpeak.text      = "⏳ Generating..."
+        binding.btnSpeak.isEnabled = false
+        binding.tvStatus.text      = "✨ ${voice.displayName}..."
+
         lifecycleScope.launch {
             try {
                 val r = withContext(Dispatchers.IO) { TtsRetrofitClient.synthesize(API_KEY, req) }
                 if (r.isSuccessful && !r.body()?.audioContent.isNullOrEmpty()) {
-                    tvStatus.text = "🔊 Playing ${voice.displayName}..."
+                    binding.tvStatus.text = "🔊 Playing ${voice.displayName}..."
                     playPcmAudio(Base64.decode(r.body()!!.audioContent!!, Base64.DEFAULT))
-                } else { tvStatus.text = "❌ Chirp3-HD error ${r.code()}"; resetSpeakButton() }
-            } catch (e: Exception) { tvStatus.text = "❌ ${e.message}"; resetSpeakButton() }
+                } else {
+                    binding.tvStatus.text = "❌ Chirp3-HD error ${r.code()}"
+                    resetSpeakButton()
+                }
+            } catch (e: Exception) {
+                binding.tvStatus.text = "❌ ${e.message}"
+                resetSpeakButton()
+            }
         }
     }
 
     private fun selectChirpVoice(index: Int) {
         selectedChirpVoiceIndex = index
         chirpVoiceButtons.forEachIndexed { i, btn -> highlightBtn(btn, i == index) }
-        tvGeminiVoiceLabel.text = "Voice: ${chirpVoices[index].displayName} (${chirpVoices[index].gender})"
+        binding.tvGeminiVoiceLabel.text =
+            "Voice: ${chirpVoices[index].displayName} (${chirpVoices[index].gender})"
     }
 
-    // ── Urdu TTS v1beta1 (V1 only) ────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // Urdu TTS v1beta1 (V1 only)
+    // ─────────────────────────────────────────────────────────────────────────
 
     private fun speakUrduWithCloudTtsV2(text: String) {
         val req = TtsV2SynthesizeRequest(
             TtsInput(text),
-            TtsV2Voice("ur-PK", selectedUrduVoice),
+            TtsV2Voice("ur-IN", selectedUrduVoice),
             TtsV2AudioConfig("LINEAR16", 24000)
         )
-        isSpeaking = true; btnSpeak.text = "⏳ Generating..."; btnSpeak.isEnabled = false
-        tvStatus.text = "🌐 Urdu v1beta1 (${selectedUrduVoice})..."
+        isSpeaking = true
+        binding.btnSpeak.text      = "⏳ Generating..."
+        binding.btnSpeak.isEnabled = false
+        binding.tvStatus.text      = "🌐 Urdu v1beta1 ($selectedUrduVoice)..."
+
         lifecycleScope.launch {
             try {
                 val r = withContext(Dispatchers.IO) { TtsRetrofitClient.synthesizeV2(API_KEY, req) }
                 if (r.isSuccessful && !r.body()?.audioContent.isNullOrEmpty()) {
-                    tvStatus.text = "🔊 Playing Urdu..."
+                    binding.tvStatus.text = "🔊 Playing Urdu..."
                     playPcmAudio(Base64.decode(r.body()!!.audioContent!!, Base64.DEFAULT))
                 } else {
-                    tvStatus.text = "❌ Urdu TTS error ${r.code()}"
+                    binding.tvStatus.text = "❌ Urdu TTS error ${r.code()}"
                     Log.e("URDU_TTS", "Error: ${r.errorBody()?.string()}")
                     resetSpeakButton()
                 }
             } catch (e: Exception) {
-                tvStatus.text = "❌ ${e.message}"
+                binding.tvStatus.text = "❌ ${e.message}"
                 Log.e("URDU_TTS", "Exception: ${e.message}")
                 resetSpeakButton()
             }
         }
     }
 
-    // ── Cloud TTS v1beta1 English (V1 only) ───────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // Cloud TTS v1beta1 English (V1 only)
+    // ─────────────────────────────────────────────────────────────────────────
 
     private fun speakWithCloudV1Beta1(text: String) {
         val voice = cloudV2Voices[selectedV2VoiceIndex]
@@ -691,26 +641,38 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             TtsV2Voice("en-US", voice.voiceId),
             TtsV2AudioConfig("LINEAR16", 24000)
         )
-        isSpeaking = true; btnSpeak.text = "⏳ Generating..."; btnSpeak.isEnabled = false
-        tvStatus.text = "🚀 ${voice.displayName} (v1beta1)..."
+        isSpeaking = true
+        binding.btnSpeak.text      = "⏳ Generating..."
+        binding.btnSpeak.isEnabled = false
+        binding.tvStatus.text      = "🚀 ${voice.displayName} (v1beta1)..."
+
         lifecycleScope.launch {
             try {
                 val r = withContext(Dispatchers.IO) { TtsRetrofitClient.synthesizeV2(API_KEY, req) }
                 if (r.isSuccessful && !r.body()?.audioContent.isNullOrEmpty()) {
-                    tvStatus.text = "🔊 Playing ${voice.displayName}..."
+                    binding.tvStatus.text = "🔊 Playing ${voice.displayName}..."
                     playPcmAudio(Base64.decode(r.body()!!.audioContent!!, Base64.DEFAULT))
-                } else { tvStatus.text = "❌ v1beta1 error ${r.code()}"; resetSpeakButton() }
-            } catch (e: Exception) { tvStatus.text = "❌ ${e.message}"; resetSpeakButton() }
+                } else {
+                    binding.tvStatus.text = "❌ v1beta1 error ${r.code()}"
+                    resetSpeakButton()
+                }
+            } catch (e: Exception) {
+                binding.tvStatus.text = "❌ ${e.message}"
+                resetSpeakButton()
+            }
         }
     }
 
     private fun selectV2Voice(index: Int) {
         selectedV2VoiceIndex = index
         v2VoiceButtons.forEachIndexed { i, btn -> highlightBtn(btn, i == index) }
-        tvVertexVoiceLabel.text = "Voice: ${cloudV2Voices[index].displayName} (${cloudV2Voices[index].gender})"
+        binding.tvVertexVoiceLabel.text =
+            "Voice: ${cloudV2Voices[index].displayName} (${cloudV2Voices[index].gender})"
     }
 
-    // ── Audio Playback ────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // Audio Playback
+    // ─────────────────────────────────────────────────────────────────────────
 
     private suspend fun playPcmAudio(pcm: ByteArray, sampleRate: Int = 24000) {
         withContext(Dispatchers.IO) {
@@ -740,17 +702,19 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             Thread.sleep((pcm.size.toLong() * 1000L) / (sampleRate * 2) + 300)
         }
         withContext(Dispatchers.Main) {
-            tvStatus.text = "✅ Done! Hold button to record again."
+            binding.tvStatus.text = "✅ Done! Hold button to record again."
             resetSpeakButton()
         }
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // Helpers
+    // ─────────────────────────────────────────────────────────────────────────
 
     private fun resetSpeakButton() {
-        isSpeaking = false
-        btnSpeak.text = "🔊 Play Again"
-        btnSpeak.isEnabled = lastTranscript.isNotEmpty()
+        isSpeaking                 = false
+        binding.btnSpeak.text      = "🔊 Play Again"
+        binding.btnSpeak.isEnabled = lastTranscript.isNotEmpty()
     }
 
     private fun stopPlayback() {
@@ -759,7 +723,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         isSpeaking = false
     }
 
-    private fun highlightBtn(btn: Button, active: Boolean) {
+    private fun highlightBtn(btn: android.widget.Button, active: Boolean) {
         btn.backgroundTintList = android.content.res.ColorStateList.valueOf(
             if (active) 0xFF1A73E8.toInt() else 0xFFE0E0E0.toInt()
         )
